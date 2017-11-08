@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_album"
+        android:icon="@drawable/ic_album"
+        android:title="@string/menu_album"/>
+    <item
+        android:id="@+id/menu_detect"
+        android:icon="@drawable/ic_detect"
+        android:title="@string/menu_detect"/>
+    <item
+        android:id="@+id/menu_history"
+        android:icon="@drawable/ic_history"
+        android:title="@string/menu_history"/>
+</menu>

@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">SpotiSave</string>
+    <string name="action_settings">Settings</string>
+
+    <!--Menu-->
+    <string name="menu_album">Album</string>
+    <string name="menu_detect">Detect</string>
+    <string name="menu_history">History</string>
+
+</resources>
