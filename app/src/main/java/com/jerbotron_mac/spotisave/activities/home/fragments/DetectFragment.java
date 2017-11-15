@@ -2,15 +2,16 @@ package com.jerbotron_mac.spotisave.activities.home.fragments;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.drawable.BitmapDrawable;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.ScaleAnimation;
 
 import com.jerbotron_mac.spotisave.R;
 import com.jerbotron_mac.spotisave.activities.home.HomePresenter;
@@ -21,16 +22,14 @@ public class DetectFragment extends Fragment {
 
     private View mainLogo;
 
-    private static final float zeroScaleFactor = 0.50f;
-    private static final float maxScaleFactor = 1.50f;
+    private static final float zeroScaleFactor = 1.0f;
+    private static final float maxScaleFactor = 3.0f;
+    private volatile float lastScaleFactor = zeroScaleFactor;
     private int currentPercent = 50;
     private volatile boolean isRunning = false;
     private volatile boolean isAudioProcessingStarted = false;
 
     private volatile Activity activity;
-
-    private FrameLayout.LayoutParams layoutParams;
-    private int logoImageHeight, logoImageWidth;
 
     private HomePresenter presenter;
     private ShakeDetector shakeDetector;
@@ -45,24 +44,12 @@ public class DetectFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_detect, container, false);
         mainLogo = view.findViewById(R.id.main_logo);
-        layoutParams = (FrameLayout.LayoutParams) mainLogo.getLayoutParams();
-
-//        mainLogo.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                presenter.tryIdentifyMusic();
-//            }
-//        });
-
         return view;
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        BitmapDrawable bd =(BitmapDrawable) ContextCompat.getDrawable(context.getApplicationContext(), R.drawable.spotify_logo);
-        logoImageHeight = (int) ((float) bd.getBitmap().getHeight() * zeroScaleFactor);
-        logoImageWidth = (int) ((float) bd.getBitmap().getWidth() * zeroScaleFactor);
         initShakeSensor(context);
     }
 
@@ -85,12 +72,6 @@ public class DetectFragment extends Fragment {
         isRunning = false;
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean("IS_RUNNING", isRunning);
-    }
-
     private void initShakeSensor(Context context) {
         shakeDetector = new ShakeDetector((SensorManager) context.getSystemService(Context.SENSOR_SERVICE));
         shakeListener = new ShakeListener();
@@ -103,6 +84,10 @@ public class DetectFragment extends Fragment {
 
     public void setIsAudioProcessingStarted(boolean isAudioProcessingStarted) {
         this.isAudioProcessingStarted = isAudioProcessingStarted;
+    }
+
+    public void setIsRunning(boolean isRunning) {
+        this.isRunning = isRunning;
     }
 
     public void setAmplitudePercent(int amplitudePercent) {
@@ -129,19 +114,30 @@ public class DetectFragment extends Fragment {
 
         @Override
         public void run() {
-            float scaleFactor = zeroScaleFactor + ((float) percent/100); // zero position plus audio wave amplitude percent
-            scaleFactor = (scaleFactor > maxScaleFactor) ? maxScaleFactor : scaleFactor;
+            float scaleFactor = zeroScaleFactor + maxScaleFactor*((float) percent/100); // zero position plus audio wave amplitude percent
 
-            layoutParams.height = (int)((float) logoImageHeight * scaleFactor);
-            layoutParams.width = (int)((float) logoImageWidth * scaleFactor);
-            mainLogo.setLayoutParams(layoutParams);
+//            Log.d(DetectFragment.class.getName(), "percent = " + percent);
+//            Log.d(DetectFragment.class.getName(), "scaleFactor = " + scaleFactor);
+
+            ScaleAnimation scaleAnimation = new ScaleAnimation(
+                    lastScaleFactor, scaleFactor,
+                    lastScaleFactor, scaleFactor,
+                    Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+
+            lastScaleFactor = scaleFactor;
+            scaleAnimation.setInterpolator(new LinearInterpolator());
+            scaleAnimation.setDuration(30);
+            scaleAnimation.setFillEnabled(true);
+            scaleAnimation.setFillAfter(true);
+
+            mainLogo.startAnimation(scaleAnimation);
         }
     }
 
     private class ShakeListener implements ShakeDetector.OnShakeListener {
         @Override
         public void onShake() {
-            if (!isAudioProcessingStarted) {
+            if (isRunning && !isAudioProcessingStarted) {
                 DeveloperUtils.showToast(getContext(), "Analyzing song...");
                 presenter.tryIdentifyMusic();
                 isAudioProcessingStarted = true;

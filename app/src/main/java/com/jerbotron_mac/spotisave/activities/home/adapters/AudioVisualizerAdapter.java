@@ -81,7 +81,7 @@ public class AudioVisualizerAdapter implements IGnAudioSource {
     }
 
     // calculate the rms as a percent of maximum
-    private int rmsPercentOfMax( ByteBuffer buffer, long bufferSize, int numBitsPerSample, int numChannels) {
+    private int rmsPercentOfMax(ByteBuffer buffer, long bufferSize, int numBitsPerSample, int numChannels) {
         double rms = 0.0;
         if ( numBitsPerSample == 8 ) {
             rms = rms8( buffer, bufferSize, numChannels );

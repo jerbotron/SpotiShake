@@ -2,10 +2,11 @@ package com.jerbotron_mac.spotisave.activities.home.displayer;
 
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.MyBottomNavigationView;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuView;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,13 +23,13 @@ public class HomeDisplayer {
     private AppCompatActivity activity;
     private HomePresenter presenter;
 
-    private BottomNavigationView bottomNavigationView;
+    private MyBottomNavigationView bottomNavigationView;
     private ViewPager viewPager;
     private MenuItem prevMenuItem;
 
     public HomeDisplayer(AppCompatActivity activity) {
         this.activity = activity;
-        bottomNavigationView = (BottomNavigationView) activity.findViewById(R.id.bottom_nav);
+        bottomNavigationView = (MyBottomNavigationView) activity.findViewById(R.id.bottom_nav);
         viewPager = (ViewPager) activity.findViewById(R.id.view_pager);
     }
 
@@ -41,7 +42,7 @@ public class HomeDisplayer {
 
         setupViewPager(albumFragment, detectFragment, historyFragment);
 
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+        bottomNavigationView.setOnNavigationItemSelectedListener(new MyBottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
@@ -87,13 +88,16 @@ public class HomeDisplayer {
 
                 switch (position) {
                     case HomePresenter.FragmentEnum.ALBUM: {
+                        detectFragment.setIsRunning(false);
                         break;
                     }
                     case HomePresenter.FragmentEnum.DETECT: {
+                        detectFragment.setIsRunning(true);
                         detectFragment.setIsAudioProcessingStarted(false);
                         break;
                     }
                     case HomePresenter.FragmentEnum.HISTORY: {
+                        detectFragment.setIsRunning(false);
                         presenter.getHistory();
                         break;
                     }
@@ -108,7 +112,7 @@ public class HomeDisplayer {
         viewPager.setCurrentItem(HomePresenter.FragmentEnum.DETECT);
     }
 
-    private void removeTextLabel(@NonNull BottomNavigationView bottomNavigationView, @IdRes int menuItemId) {
+    private void removeTextLabel(@NonNull MyBottomNavigationView bottomNavigationView, @IdRes int menuItemId) {
         View view = bottomNavigationView.findViewById(menuItemId);
         if (view == null) return;
         if (view instanceof MenuView.ItemView) {
@@ -116,12 +120,13 @@ public class HomeDisplayer {
             int padding = 0;
             for (int i = 0; i < viewGroup.getChildCount(); i++) {
                 View v = viewGroup.getChildAt(i);
+                v.setPadding(0,0,0,0);
                 if (v instanceof ViewGroup) {
                     padding = v.getHeight();
                     viewGroup.removeViewAt(i);
                 }
             }
-            viewGroup.setPadding(view.getPaddingLeft(), (viewGroup.getPaddingTop() + padding) / 2, view.getPaddingRight(), view.getPaddingBottom());
+            viewGroup.setPadding(view.getPaddingLeft(), (viewGroup.getPaddingTop() + padding) / 2, view.getPaddingRight(), 0);
         }
     }
 
@@ -135,5 +140,10 @@ public class HomeDisplayer {
 
     public void setPresenter(HomePresenter presenter) {
         this.presenter = presenter;
+    }
+
+    public void displayNoResults() {
+        Log.d(getClass().getName(), "could not id song");
+//        DeveloperUtils.showToast(activity, "Could not ID song, please try again!");
     }
 }

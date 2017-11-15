@@ -2,17 +2,21 @@ package com.jerbotron_mac.spotisave.activities.home.adapters;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.jerbotron_mac.spotisave.R;
+import com.jerbotron_mac.spotisave.shared.MaterialColor;
 import com.jerbotron_mac.spotisave.utils.DeveloperUtils;
 import com.squareup.picasso.Picasso;
 
+import static com.jerbotron_mac.spotisave.data.SongInfo.CARD_COLOR;
 import static com.jerbotron_mac.spotisave.data.SongInfo.COVER_ART_URL;
 import static com.jerbotron_mac.spotisave.data.SongInfo.TRACK_ALBUM;
 import static com.jerbotron_mac.spotisave.data.SongInfo.TRACK_ARTIST;
@@ -46,6 +50,7 @@ public class HistoryListAdapter extends RecyclerView.Adapter<HistoryListAdapter.
     }
 
     class SongViewHolder extends RecyclerView.ViewHolder {
+        private RelativeLayout cardContainer;
         private ImageView coverArt;
         private TextView title;
         private TextView album;
@@ -53,6 +58,7 @@ public class HistoryListAdapter extends RecyclerView.Adapter<HistoryListAdapter.
 
         private SongViewHolder(View view) {
             super(view);
+            cardContainer = (RelativeLayout) view.findViewById(R.id.card_container);
             coverArt = (ImageView) view.findViewById(R.id.song_card_cover_art);
             title = (TextView) view.findViewById(R.id.song_card_title);
             album = (TextView) view.findViewById(R.id.song_card_album);
@@ -60,11 +66,18 @@ public class HistoryListAdapter extends RecyclerView.Adapter<HistoryListAdapter.
         }
 
         private void bindCursor(Cursor cursor) {
+            @MaterialColor.MaterialColors int colorId = cursor.getInt(cursor.getColumnIndexOrThrow(CARD_COLOR));
+            cardContainer.setBackgroundColor(context.getResources().getColor(MaterialColor.getValue(colorId)));
             String url = DeveloperUtils.prependHttp(cursor.getString(cursor.getColumnIndexOrThrow(COVER_ART_URL)));
             Picasso.with(context)
                     .load(url)
                     .placeholder(R.drawable.spotify_logo)
                     .into(coverArt);
+            if (MaterialColor.shouldUseBlackText(colorId)) {
+                title.setTextColor(Color.BLACK);
+                artist.setTextColor(Color.BLACK);
+                album.setTextColor(Color.BLACK);
+            }
             title.setText(cursor.getString(cursor.getColumnIndexOrThrow(TRACK_TITLE)));
             artist.setText(cursor.getString(cursor.getColumnIndexOrThrow(TRACK_ARTIST)));
             album.setText(cursor.getString(cursor.getColumnIndexOrThrow(TRACK_ALBUM)));

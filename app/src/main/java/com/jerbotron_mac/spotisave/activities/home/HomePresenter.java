@@ -32,7 +32,7 @@ import com.jerbotron_mac.spotisave.runnables.LocaleLoadRunnable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.jerbotron_mac.spotisave.utils.AppConstants.APP_STRING;
+import static com.jerbotron_mac.spotisave.shared.AppConstants.APP_STRING;
 
 public class HomePresenter {
 
@@ -151,8 +151,12 @@ public class HomePresenter {
     }
 
     public void updateAlbum(GnResponseAlbums responseAlbums) {
-        albumFragment.updateAlbum(responseAlbums);
-        saveSongInfo(responseAlbums);
+        if (responseAlbums.resultCount() > 0) {
+            albumFragment.updateAlbum(responseAlbums);
+            saveSongInfo(responseAlbums);
+        } else {
+            displayer.displayNoResults();
+        }
     }
 
     /**

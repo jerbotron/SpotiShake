@@ -7,18 +7,19 @@ package com.jerbotron_mac.spotisave.data;
 import android.content.*;
 import android.database.*;
 import android.database.sqlite.*;
+import android.util.Log;
 import android.widget.*;
 
 import com.gracenote.gnsdk.*;
+import com.jerbotron_mac.spotisave.shared.MaterialColor;
 
 import static android.provider.BaseColumns._ID;
 import static com.jerbotron_mac.spotisave.data.DatabaseHelper.TB_SONG_HISTORY;
+import static com.jerbotron_mac.spotisave.data.SongInfo.CARD_COLOR;
 import static com.jerbotron_mac.spotisave.data.SongInfo.COVER_ART_URL;
-import static com.jerbotron_mac.spotisave.data.SongInfo.GENRE;
 import static com.jerbotron_mac.spotisave.data.SongInfo.TIMESTAMP_MS;
 import static com.jerbotron_mac.spotisave.data.SongInfo.TRACK_ALBUM;
 import static com.jerbotron_mac.spotisave.data.SongInfo.TRACK_ARTIST;
-import static com.jerbotron_mac.spotisave.data.SongInfo.TRACK_NUMBER;
 import static com.jerbotron_mac.spotisave.data.SongInfo.TRACK_TITLE;
 
 
@@ -32,11 +33,9 @@ import static com.jerbotron_mac.spotisave.data.SongInfo.TRACK_TITLE;
  */
 public final class DatabaseAdapter {
 
-    private final Context context;
-
+    private Context context;
 	private DatabaseHelper databaseHelper;
 	private SQLiteDatabase db;
-	private static final int MAX_COUNT = 1000;
 
 	public DatabaseAdapter(Context context) {
 		this.context = context;
@@ -54,35 +53,19 @@ public final class DatabaseAdapter {
 	}
 
     public void insertChanges(GnResponseAlbums gnAlbums) throws GnException {
-        ContentValues values = new ContentValues();
-        long currentTimeMs = System.currentTimeMillis();
 
-        values.put(TIMESTAMP_MS, currentTimeMs);
+        SongInfo songInfo = new SongInfo(gnAlbums);
+
+        if (doesRowExist(songInfo)) {
+            Log.d(getClass().getName(), "song already exists in table");
+            return;
+        }
+
+        ContentValues values = songInfo.getContentValues();
         try {
-            GnAlbumIterator iter = gnAlbums.albums().getIterator();
-            while (iter.hasNext()) {
-                GnAlbum album = iter.next();
-                if (album.title().display() != null) {
-                    values.put(TRACK_ALBUM, album.title().display());
-                }
-
-                if (album.trackMatched() != null) {
-                    String trackArtist = album.trackMatched().artist().name().display();
-                    if (trackArtist == null || trackArtist.isEmpty()) {
-                        //use album artist if track artist not available
-                        trackArtist = album.artist().name().display();
-                    }
-                    values.put(TRACK_ARTIST, trackArtist);
-                    values.put(TRACK_TITLE, album.trackMatched().title().display());
-                }
-
-                values.put(COVER_ART_URL, album.coverArt().asset(GnImageSize.kImageSizeLarge).url());
-                values.put(TRACK_NUMBER, album.trackMatchNumber());
-
-                long result = db.insert(TB_SONG_HISTORY, null, values);
-                if (result == -1) {
-                    throw new SQLException("Error calling db.insert()");
-                }
+            long result = db.insert(TB_SONG_HISTORY, null, values);
+            if (result == -1) {
+                throw new SQLException("Error calling db.insert()");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -93,7 +76,7 @@ public final class DatabaseAdapter {
 	public int deleteRow(String rowId) {
 		int result = 0;
 		try {
-			result = db.delete(TB_SONG_HISTORY, _ID + " =?", new String[]{rowId});
+			result = db.delete(TB_SONG_HISTORY, _ID + " = ?", new String[]{rowId});
 		} catch (SQLException e) {
 			e.printStackTrace();
 			Toast.makeText(context, "Failed to delete record: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -120,9 +103,8 @@ public final class DatabaseAdapter {
                     TRACK_TITLE,
                     TRACK_ALBUM,
                     TRACK_ARTIST,
-                    TRACK_NUMBER,
                     COVER_ART_URL,
-                    GENRE,
+                    CARD_COLOR,
                     TIMESTAMP_MS
             };
 
@@ -142,4 +124,60 @@ public final class DatabaseAdapter {
 		}
 		return cursor;
 	}
+
+	private boolean doesRowExist(SongInfo songInfo) {
+        Cursor cursor;
+        boolean doesExist = false;
+        try {
+            String[] columns = {
+                    _ID,
+                    TRACK_TITLE,
+                    TRACK_ALBUM,
+                    TRACK_ARTIST,
+                    COVER_ART_URL,
+                    CARD_COLOR
+            };
+
+            String whereClause =
+                    TRACK_TITLE + " = ? AND " +
+                    TRACK_ALBUM + " = ? AND " +
+                    TRACK_ARTIST + " = ? AND " +
+                    COVER_ART_URL + " = ?";
+
+            String[] whereArgs = new String[] {
+                    songInfo.getTitle(),
+                    songInfo.getAlbum(),
+                    songInfo.getArtist(),
+                    songInfo.getCoverArtUrl()
+            };
+
+            String orderBy = TIMESTAMP_MS + " ASC";
+
+            cursor = db.query(
+                    TB_SONG_HISTORY,
+                    columns,
+                    whereClause,
+                    whereArgs,
+                    null,
+                    null,
+                    orderBy);
+
+            if (cursor.getCount() >= 1) {
+                doesExist = true;
+                cursor.moveToFirst();
+                // keep the same card color
+                songInfo.setCardColor(cursor.getInt(cursor.getColumnIndexOrThrow(CARD_COLOR)));
+                while (cursor.moveToNext()) {
+                    deleteRow(String.valueOf(cursor.getInt(cursor.getColumnIndexOrThrow(_ID))));
+                }
+                // update timestamp on current song
+                db.update(TB_SONG_HISTORY, songInfo.getContentValues(), whereClause, whereArgs);
+            }
+            cursor.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return doesExist;
+    }
 }

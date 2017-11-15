@@ -1,3 +1,6 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
+
+    <!--Elevations-->
+    <dimen name="bottom_nav_elevation">8dp</dimen>
 </resources>

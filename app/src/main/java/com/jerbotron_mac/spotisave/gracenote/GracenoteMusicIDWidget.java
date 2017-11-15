@@ -52,9 +52,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.jerbotron_mac.spotisave.utils.AppConstants.GNSDK_CLIENT_ID;
-import static com.jerbotron_mac.spotisave.utils.AppConstants.GNSDK_CLIENT_TAG;
-import static com.jerbotron_mac.spotisave.utils.AppConstants.GNSDK_LICENSE_FILENAME;
+import static com.jerbotron_mac.spotisave.shared.AppConstants.GNSDK_CLIENT_ID;
+import static com.jerbotron_mac.spotisave.shared.AppConstants.GNSDK_CLIENT_TAG;
+import static com.jerbotron_mac.spotisave.shared.AppConstants.GNSDK_LICENSE_FILENAME;
 
 public class GracenoteMusicIDWidget {
 

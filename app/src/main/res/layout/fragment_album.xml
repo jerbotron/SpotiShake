@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -5,6 +6,17 @@
     tools:context="com.jerbotron_mac.spotisave.activities.home.fragments.AlbumFragment"
     android:id="@+id/album_container"
     android:background="@color/colorPrimary">
+
+    <TextView
+        android:id="@+id/empty_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/album_empty_msg"
+        android:textColor="@color/off_white"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:layout_centerInParent="true">
+    </TextView>
 
     <ImageView
         android:id="@+id/cover_art"
@@ -14,13 +26,15 @@
         android:layout_alignParentTop="true"
         android:layout_marginTop="15dp"
         android:layout_marginStart="15dp"
-        android:layout_marginEnd="15dp"/>
+        android:layout_marginEnd="15dp"
+        android:visibility="invisible"/>
 
     <ScrollView
         android:id="@+id/album_info_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/cover_art">
+        android:layout_below="@id/cover_art"
+        android:visibility="invisible">
         <include layout="@layout/album_info" />
     </ScrollView>
 

@@ -89,7 +89,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.jerbotron_mac.spotisave.utils.AppConstants.*;
+import static com.jerbotron_mac.spotisave.shared.AppConstants.*;
 
 public class MainActivity extends Activity {
 

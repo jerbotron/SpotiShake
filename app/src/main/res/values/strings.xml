@@ -7,4 +7,7 @@
     <string name="menu_detect">Detect</string>
     <string name="menu_history">History</string>
 
+    <!--Fragments-->
+    <string name="album_empty_msg">Shake to ID a song!</string>
+
 </resources>

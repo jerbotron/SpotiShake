@@ -1,4 +1,4 @@
-package com.jerbotron_mac.spotisave.utils;
+package com.jerbotron_mac.spotisave.shared;
 
 public class AppConstants {
     public static final String GNSDK_CLIENT_ID = "1171062943";

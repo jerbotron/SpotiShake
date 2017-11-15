@@ -1,13 +1,10 @@
 package com.jerbotron_mac.spotisave.activities.home;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 
 import com.gracenote.gnsdk.GnException;
@@ -23,10 +20,10 @@ import com.jerbotron_mac.spotisave.data.DatabaseAdapter;
 import com.jerbotron_mac.spotisave.gracenote.SystemEvents;
 import com.jerbotron_mac.spotisave.utils.DeveloperUtils;
 
-import static com.jerbotron_mac.spotisave.utils.AppConstants.APP_STRING;
-import static com.jerbotron_mac.spotisave.utils.AppConstants.GNSDK_CLIENT_ID;
-import static com.jerbotron_mac.spotisave.utils.AppConstants.GNSDK_CLIENT_TAG;
-import static com.jerbotron_mac.spotisave.utils.AppConstants.GNSDK_LICENSE_FILENAME;
+import static com.jerbotron_mac.spotisave.shared.AppConstants.APP_STRING;
+import static com.jerbotron_mac.spotisave.shared.AppConstants.GNSDK_CLIENT_ID;
+import static com.jerbotron_mac.spotisave.shared.AppConstants.GNSDK_CLIENT_TAG;
+import static com.jerbotron_mac.spotisave.shared.AppConstants.GNSDK_LICENSE_FILENAME;
 
 
 public class HomeActivity extends AppCompatActivity {
