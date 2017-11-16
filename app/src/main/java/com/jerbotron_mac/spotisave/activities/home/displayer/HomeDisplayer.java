@@ -120,7 +120,6 @@ public class HomeDisplayer {
             int padding = 0;
             for (int i = 0; i < viewGroup.getChildCount(); i++) {
                 View v = viewGroup.getChildAt(i);
-                v.setPadding(0,0,0,0);
                 if (v instanceof ViewGroup) {
                     padding = v.getHeight();
                     viewGroup.removeViewAt(i);

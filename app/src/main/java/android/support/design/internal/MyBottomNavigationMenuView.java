@@ -18,19 +18,16 @@ package android.support.design.internal;
 
 import static android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.*;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
+import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.design.R;
-import android.support.transition.AutoTransition;
-import android.support.transition.TransitionManager;
-import android.support.transition.TransitionSet;
 import android.support.v4.util.Pools;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuItemImpl;
 import android.support.v7.view.menu.MenuView;
@@ -40,47 +37,22 @@ import android.view.View;
 import android.view.ViewGroup;
 
 /**
- * <p>
- * Copyright (C) 2016 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * </p>
  * @hide For internal use only.
- * <p>
- * Copied from support lib version 26.0.1.
- * <p>
- * Google's AppCompat Bottom Nav implementation has a feature called shifting mode which resizes items based on
- * selection state. Our UX explicitly disables this. To get around this, we copied AppCompat Bottom Nav source code
- * and forcibly disable shifting mode via code. We also tweak code which sets buttons in a selected state.
- * <p>
- * Until Google allows shifting mode to be set as a property we must apply the OU specific hacks to our app
- * specific fork of AppCompat Bottom Nav - disable shifting mode and setChecked states
  */
 @RestrictTo(LIBRARY_GROUP)
 @SuppressLint("RestrictedApi")
-public class MyBottomNavigationMenuView extends BottomNavigationMenuView {
-    private static final long ACTIVE_ANIMATION_DURATION_MS = 115L;
-
+public class MyBottomNavigationMenuView extends ViewGroup implements MenuView {
     private final int mInactiveItemMaxWidth;
     private final int mInactiveItemMinWidth;
     private final int mActiveItemMaxWidth;
     private final int mItemHeight;
     private final OnClickListener mOnClickListener;
-    private final Pools.Pool<BottomNavigationItemView> mItemPool = new Pools.SynchronizedPool<>(5);
-    // OU SPECIFIC HACK - default to false
+    private final BottomNavigationAnimationHelperBase mAnimationHelper;
+    private final Pools.Pool<MyBottomNavigationItemView> mItemPool = new Pools.SynchronizedPool<>(5);
+
     private boolean mShiftingMode = false;
 
-    private BottomNavigationItemView[] mButtons;
+    private MyBottomNavigationItemView[] mButtons;
     private int mSelectedItemId = 0;
     private int mSelectedItemPosition = 0;
     private ColorStateList mItemIconTint;
@@ -106,14 +78,19 @@ public class MyBottomNavigationMenuView extends BottomNavigationMenuView {
                 R.dimen.design_bottom_navigation_active_item_max_width);
         mItemHeight = res.getDimensionPixelSize(R.dimen.design_bottom_navigation_height);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            mAnimationHelper = new BottomNavigationAnimationHelperIcs();
+        } else {
+            mAnimationHelper = new BottomNavigationAnimationHelperBase();
+        }
+
         mOnClickListener = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                final BottomNavigationItemView itemView = (BottomNavigationItemView) v;
+                final MyBottomNavigationItemView itemView = (MyBottomNavigationItemView) v;
                 MenuItem item = itemView.getItemData();
                 if (!mMenu.performItemAction(item, mPresenter, 0)) {
-                    // OU SPECIFIC HACK
-                    // item.setChecked(true);
+                    item.setChecked(true);
                 }
             }
         };
@@ -172,9 +149,9 @@ public class MyBottomNavigationMenuView extends BottomNavigationMenuView {
             totalWidth += child.getMeasuredWidth();
         }
         setMeasuredDimension(
-                View.resolveSizeAndState(totalWidth,
+                ViewCompat.resolveSizeAndState(totalWidth,
                         MeasureSpec.makeMeasureSpec(totalWidth, MeasureSpec.EXACTLY), 0),
-                View.resolveSizeAndState(mItemHeight, heightSpec, 0));
+                ViewCompat.resolveSizeAndState(mItemHeight, heightSpec, 0));
     }
 
     @Override
@@ -210,7 +187,7 @@ public class MyBottomNavigationMenuView extends BottomNavigationMenuView {
     public void setIconTintList(ColorStateList tint) {
         mItemIconTint = tint;
         if (mButtons == null) return;
-        for (BottomNavigationItemView item : mButtons) {
+        for (MyBottomNavigationItemView item : mButtons) {
             item.setIconTintList(tint);
         }
     }
@@ -232,10 +209,10 @@ public class MyBottomNavigationMenuView extends BottomNavigationMenuView {
      */
     public void setItemTextColor(ColorStateList color) {
         mItemTextColor = color;
-        if (mButtons == null) return;
-        for (BottomNavigationItemView item : mButtons) {
-            item.setTextColor(color);
-        }
+//        if (mButtons == null) return;
+//        for (MyBottomNavigationItemView item : mButtons) {
+//            item.setTextColor(color);
+//        }
     }
 
     /**
@@ -255,7 +232,7 @@ public class MyBottomNavigationMenuView extends BottomNavigationMenuView {
     public void setItemBackgroundRes(int background) {
         mItemBackgroundRes = background;
         if (mButtons == null) return;
-        for (BottomNavigationItemView item : mButtons) {
+        for (MyBottomNavigationItemView item : mButtons) {
             item.setItemBackground(background);
         }
     }
@@ -276,7 +253,7 @@ public class MyBottomNavigationMenuView extends BottomNavigationMenuView {
     public void buildMenuView() {
         removeAllViews();
         if (mButtons != null) {
-            for (BottomNavigationItemView item : mButtons) {
+            for (MyBottomNavigationItemView item : mButtons) {
                 mItemPool.release(item);
             }
         }
@@ -286,17 +263,15 @@ public class MyBottomNavigationMenuView extends BottomNavigationMenuView {
             mButtons = null;
             return;
         }
-        mButtons = new BottomNavigationItemView[mMenu.size()];
-        // OU SPECIFIC HACK
-        // mShiftingMode = mMenu.size() > 3;
+        mButtons = new MyBottomNavigationItemView[mMenu.size()];
+//        mShiftingMode = mMenu.size() > 3;
         for (int i = 0; i < mMenu.size(); i++) {
             mPresenter.setUpdateSuspended(true);
             mMenu.getItem(i).setCheckable(true);
             mPresenter.setUpdateSuspended(false);
-            BottomNavigationItemView child = getNewItem();
+            MyBottomNavigationItemView child = getNewItem();
             mButtons[i] = child;
             child.setIconTintList(mItemIconTint);
-            child.setTextColor(mItemTextColor);
             child.setItemBackground(mItemBackgroundRes);
             child.setShiftingMode(mShiftingMode);
             child.initialize((MenuItemImpl) mMenu.getItem(i), 0);
@@ -305,15 +280,42 @@ public class MyBottomNavigationMenuView extends BottomNavigationMenuView {
             addView(child);
         }
         mSelectedItemPosition = Math.min(mMenu.size() - 1, mSelectedItemPosition);
-
-        // OU SPECIFIC HACK
-        // mMenu.getItem(mSelectedItemPosition).setChecked(true);
+        mMenu.getItem(mSelectedItemPosition).setChecked(true);
     }
 
-    private BottomNavigationItemView getNewItem() {
-        BottomNavigationItemView item = mItemPool.acquire();
+    public void updateMenuView() {
+        final int menuSize = mMenu.size();
+        if (menuSize != mButtons.length) {
+            // The size has changed. Rebuild menu view from scratch.
+            buildMenuView();
+            return;
+        }
+        int previousSelectedId = mSelectedItemId;
+
+        for (int i = 0; i < menuSize; i++) {
+            MenuItem item = mMenu.getItem(i);
+            if (item.isChecked()) {
+                mSelectedItemId = item.getItemId();
+                mSelectedItemPosition = i;
+            }
+        }
+        if (previousSelectedId != mSelectedItemId) {
+            // Note: this has to be called before MyBottomNavigationItemView#initialize().
+            mAnimationHelper.beginDelayedTransition(this);
+        }
+
+        for (int i = 0; i < menuSize; i++) {
+            mPresenter.setUpdateSuspended(true);
+            mButtons[i].initialize((MenuItemImpl) mMenu.getItem(i), 0);
+            mPresenter.setUpdateSuspended(false);
+        }
+
+    }
+
+    private MyBottomNavigationItemView getNewItem() {
+        MyBottomNavigationItemView item = mItemPool.acquire();
         if (item == null) {
-            item = new BottomNavigationItemView(getContext());
+            item = new MyBottomNavigationItemView(getContext());
         }
         return item;
     }
@@ -329,8 +331,7 @@ public class MyBottomNavigationMenuView extends BottomNavigationMenuView {
             if (itemId == item.getItemId()) {
                 mSelectedItemId = itemId;
                 mSelectedItemPosition = i;
-                // OU SPECIFIC HACK
-                // item.setChecked(true);
+                item.setChecked(true);
                 break;
             }
         }
