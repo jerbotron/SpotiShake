@@ -116,36 +116,6 @@ public class MyBottomNavigationView extends FrameLayout {
     private OnNavigationItemSelectedListener mSelectedListener;
     private OnNavigationItemReselectedListener mReselectedListener;
 
-    private void centerMenuIcon() {
-        BottomNavigationMenuView menuView = getBottomMenuView();
-
-        if (menuView != null) {
-            for (int i = 0; i < menuView.getChildCount(); i++) {
-                BottomNavigationItemView menuItemView = (BottomNavigationItemView) menuView.getChildAt(i);
-
-                AppCompatImageView icon = (AppCompatImageView) menuItemView.getChildAt(0);
-
-                FrameLayout.LayoutParams params = (LayoutParams) icon.getLayoutParams();
-                params.gravity = Gravity.CENTER;
-
-                menuItemView.setShiftingMode(true);
-            }
-        }
-    }
-
-    private BottomNavigationMenuView getBottomMenuView() {
-        Object menuView = null;
-        try {
-            Field field = BottomNavigationView.class.getDeclaredField("mMenuView");
-            field.setAccessible(true);
-            menuView = field.get(this);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-
-        return (BottomNavigationMenuView) menuView;
-    }
-
     public MyBottomNavigationView(Context context) {
         this(context, null);
     }
@@ -236,8 +206,7 @@ public class MyBottomNavigationView extends FrameLayout {
      *
      * @see #setOnNavigationItemReselectedListener(OnNavigationItemReselectedListener)
      */
-    public void setOnNavigationItemSelectedListener(
-            @Nullable OnNavigationItemSelectedListener listener) {
+    public void setOnNavigationItemSelectedListener(@Nullable OnNavigationItemSelectedListener listener) {
         mSelectedListener = listener;
     }
 
@@ -249,8 +218,7 @@ public class MyBottomNavigationView extends FrameLayout {
      *
      * @see #setOnNavigationItemSelectedListener(OnNavigationItemSelectedListener)
      */
-    public void setOnNavigationItemReselectedListener(
-            @Nullable OnNavigationItemReselectedListener listener) {
+    public void setOnNavigationItemReselectedListener(@Nullable OnNavigationItemReselectedListener listener) {
         mReselectedListener = listener;
     }
 

@@ -9,7 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/album_empty_msg"
-        android:textColor="@color/off_white"
+        android:textColor="@color/offWhite"
         android:textSize="28sp"
         android:textStyle="bold"
         android:layout_centerInParent="true">

@@ -22,7 +22,7 @@ public class DetectFragment extends Fragment {
 
     private View mainLogo;
 
-    private static final float zeroScaleFactor = 1.0f;
+    private static final float zeroScaleFactor = 1.5f;
     private static final float maxScaleFactor = 3.0f;
     private volatile float lastScaleFactor = zeroScaleFactor;
     private int currentPercent = 50;

@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.jerbotron_mac.spotisave.activities.home.fragments.HistoryFragment">
+    tools:context="com.jerbotron_mac.spotisave.activities.home.fragments.HistoryFragment"
+    android:background="@color/offWhite">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/song_history_recycler_view"

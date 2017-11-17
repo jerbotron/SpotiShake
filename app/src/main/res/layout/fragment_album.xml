@@ -5,14 +5,14 @@
     android:layout_height="match_parent"
     tools:context="com.jerbotron_mac.spotisave.activities.home.fragments.AlbumFragment"
     android:id="@+id/album_container"
-    android:background="@color/colorPrimary">
+    android:background="@color/spotifyDarkGray">
 
     <TextView
         android:id="@+id/empty_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/album_empty_msg"
-        android:textColor="@color/off_white"
+        android:textColor="@color/offWhite"
         android:textSize="28sp"
         android:textStyle="bold"
         android:layout_centerInParent="true">

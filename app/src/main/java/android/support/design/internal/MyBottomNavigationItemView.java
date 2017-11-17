@@ -22,7 +22,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
@@ -38,7 +37,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 /**
  * @hide
@@ -63,6 +61,7 @@ public class MyBottomNavigationItemView extends FrameLayout implements MenuView.
     private MenuItemImpl mItemData;
 
     private ColorStateList mIconTint;
+    private Resources res;
 
     public MyBottomNavigationItemView(@NonNull Context context) {
         this(context, null);
@@ -74,7 +73,7 @@ public class MyBottomNavigationItemView extends FrameLayout implements MenuView.
 
     public MyBottomNavigationItemView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        final Resources res = getResources();
+        res = getResources();
         int inactiveLabelSize =
                 res.getDimensionPixelSize(R.dimen.design_bottom_navigation_text_size);
         int activeLabelSize = res.getDimensionPixelSize(
@@ -134,9 +133,9 @@ public class MyBottomNavigationItemView extends FrameLayout implements MenuView.
     @Override
     public void setChecked(boolean checked) {
         if (checked) {
-            mIcon.setImageTintList(ColorStateList.valueOf(Color.BLUE));
+            mIcon.setImageTintList(ColorStateList.valueOf(res.getColor(com.jerbotron_mac.spotisave.R.color.white)));
         } else {
-            mIcon.setImageTintList(ColorStateList.valueOf(Color.GREEN));
+            mIcon.setImageTintList(ColorStateList.valueOf(res.getColor(com.jerbotron_mac.spotisave.R.color.spotifyLightGray)));
         }
         refreshDrawableState();
     }

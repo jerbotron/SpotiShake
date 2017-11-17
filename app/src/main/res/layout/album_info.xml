@@ -4,14 +4,14 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary">
+    android:background="@color/spotifyDarkGray">
 
     <TextView
         android:id="@+id/song_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="Title"
-        android:textColor="@color/off_white"
+        android:textColor="@color/offWhite"
         android:textSize="28sp"
         android:layout_marginStart="25dp"
         android:layout_marginEnd="25dp"
@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/song_title"
         tools:text="album"
-        android:textColor="@color/off_white"
+        android:textColor="@color/offWhite"
         android:textSize="18sp"
         android:layout_marginStart="25dp"
         android:layout_marginEnd="25dp"
@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/song_album"
         tools:text="artist name"
-        android:textColor="@color/off_white"
+        android:textColor="@color/offWhite"
         android:textSize="18sp"
         android:layout_marginStart="25dp"
         android:layout_marginEnd="25dp"
@@ -47,7 +47,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/song_artist"
         tools:text="genre"
-        android:textColor="@color/off_white"
+        android:textColor="@color/offWhite"
         android:textSize="18sp"
         android:layout_marginStart="25dp"
         android:layout_marginEnd="25dp"

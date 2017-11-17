@@ -25,33 +25,6 @@
             </intent-filter>
         </activity>
 
-        <!-- widget -->
-        <service android:name="com.jerbotron_mac.spotisave.services.IdNowService" />
-
-        <receiver android:name="com.jerbotron_mac.spotisave.receivers.IdNowWidgetProvider">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.ALTERNATIVE" />
-                <action android:name="com.jerbotron_mac.spotisave.services.IdNowService.IDNOW" />
-                <action android:name="com.jerbotron_mac.spotisave.services.IdNowService.CANCEL" />
-            </intent-filter>
-            <meta-data android:name="android.appwidget.provider"
-                android:resource="@xml/widgetproviderinfo" />
-        </receiver>
-
-        <receiver android:name="com.jerbotron_mac.spotisave.receivers.IdNowReceiver">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.ALTERNATIVE" />
-                <action android:name="com.jerbotron_mac.spotisave.services.IdNowService.IDNOW" />
-                <action android:name="com.jerbotron_mac.spotisave.services.IdNowService.CANCEL" />
-            </intent-filter>
-            <meta-data android:name="android.appwidget.provider"
-                android:resource="@xml/widgetproviderinfo" />
-        </receiver>
-
     </application>
 
 </manifest>
