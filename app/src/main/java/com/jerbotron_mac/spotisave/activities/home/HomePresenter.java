@@ -6,6 +6,7 @@ import android.util.Log;
 import com.gracenote.gnsdk.GnDescriptor;
 import com.gracenote.gnsdk.GnException;
 import com.gracenote.gnsdk.GnLanguage;
+import com.gracenote.gnsdk.GnLocale;
 import com.gracenote.gnsdk.GnLocaleGroup;
 import com.gracenote.gnsdk.GnLog;
 import com.gracenote.gnsdk.GnLookupData;
@@ -20,7 +21,6 @@ import com.gracenote.gnsdk.GnResponseAlbums;
 import com.gracenote.gnsdk.GnUser;
 import com.gracenote.gnsdk.IGnAudioSource;
 import com.jerbotron_mac.spotisave.activities.home.adapters.AudioVisualizerAdapter;
-import com.jerbotron_mac.spotisave.activities.home.adapters.HistoryListAdapter;
 import com.jerbotron_mac.spotisave.activities.home.displayer.HomeDisplayer;
 import com.jerbotron_mac.spotisave.activities.home.fragments.AlbumFragment;
 import com.jerbotron_mac.spotisave.activities.home.fragments.DetectFragment;
@@ -32,6 +32,11 @@ import com.jerbotron_mac.spotisave.runnables.LocaleLoadRunnable;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Scheduler;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.Observable;
+
 import static com.jerbotron_mac.spotisave.shared.AppConstants.APP_STRING;
 
 public class HomePresenter {
@@ -41,7 +46,6 @@ public class HomePresenter {
     private DetectFragment detectFragment;
     private HistoryFragment historyFragment;
     private DatabaseAdapter databaseAdapter;
-    private HistoryListAdapter historyListAdapter;
 
     // Gracenot SDK Objects
     private GnManager gnManager;
@@ -78,10 +82,7 @@ public class HomePresenter {
             e.printStackTrace();
         }
 
-        // init DB adapter
-//        databaseAdapter.open();
-
-        initFragments(databaseAdapter);
+        initFragments();
         displayer.start(albumFragment, detectFragment, historyFragment);
     }
 
@@ -114,26 +115,47 @@ public class HomePresenter {
             }
         }
 
-        databaseAdapter.close();
+//        databaseAdapter.close();
     }
 
-    private void initFragments(DatabaseAdapter databaseAdapter) {
+    private void initFragments() {
         albumFragment = new AlbumFragment();
         albumFragment.setDisplayer(displayer);
         detectFragment = new DetectFragment();
         detectFragment.setPresenter(this);
         historyFragment = new HistoryFragment();
+        historyFragment.setDatabaseAdapter(databaseAdapter);
     }
 
     private void initGnLocale() {
-        Thread localeThread = new Thread(
-                new LocaleLoadRunnable(
-                        GnLocaleGroup.kLocaleGroupMusic,
-                        GnLanguage.kLanguageEnglish,
-                        GnRegion.kRegionGlobal,
-                        GnDescriptor.kDescriptorDefault,
-                        gnUser));
-        localeThread.start();
+        Observable.just(gnUser)
+                .subscribeOn(Schedulers.io())
+                .subscribe(new DisposableObserver<GnUser>() {
+                    @Override
+                    public void onNext(GnUser gnUser) {
+                        try {
+                            GnLocale locale = new GnLocale(GnLocaleGroup.kLocaleGroupMusic,
+                                    GnLanguage.kLanguageEnglish,
+                                    GnRegion.kRegionGlobal,
+                                    GnDescriptor.kDescriptorDefault,
+                                    gnUser);
+                            locale.setGroupDefault();
+                        } catch (GnException e) {
+                            Log.e(getClass().getName(), e.getMessage());
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
     public void setAmplitudePercent(int amplitudePercent) {
@@ -153,7 +175,7 @@ public class HomePresenter {
     public void updateAlbum(GnResponseAlbums responseAlbums) {
         if (responseAlbums.resultCount() > 0) {
             albumFragment.updateAlbum(responseAlbums);
-            saveSongInfo(responseAlbums);
+            historyFragment.saveSong(responseAlbums);
         } else {
             displayer.displayNoResults();
         }
@@ -171,35 +193,6 @@ public class HomePresenter {
             } catch (GnException e) {
                 Log.e(APP_STRING, e.errorCode() + ", " + e.errorDescription() + ", " + e.errorModule());
                 e.printStackTrace();
-            }
-        }
-    }
-
-    public void getHistory() {
-        databaseAdapter.open();
-        historyFragment.init(databaseAdapter.getCursor());
-    }
-
-    private void saveSongInfo(GnResponseAlbums responseAlbums) {
-        Thread thread = new Thread(new InsertChangesRunnable(responseAlbums));
-        thread.start();
-    }
-
-    private class InsertChangesRunnable implements Runnable {
-        GnResponseAlbums row;
-
-        InsertChangesRunnable(GnResponseAlbums row) {
-            this.row = row;
-        }
-
-        @Override
-        public void run() {
-            try {
-                databaseAdapter.open();
-                databaseAdapter.insertChanges(row);
-                databaseAdapter.close();
-            } catch (GnException e) {
-                // ignore
             }
         }
     }

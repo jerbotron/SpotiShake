@@ -9,5 +9,10 @@
 
     <!--Fragments-->
     <string name="album_empty_msg">Shake to ID a song!</string>
+    <string name="history_toolbar_title">History</string>
+
+    <!--Snack bar-->
+    <string name="history_deleted">Deleted from history.</string>
+    <string name="undo">UNDO</string>
 
 </resources>

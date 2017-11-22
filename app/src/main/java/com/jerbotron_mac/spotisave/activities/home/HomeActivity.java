@@ -77,7 +77,6 @@ public class HomeActivity extends AppCompatActivity {
 
     private void startup() {
         initGnSDK();
-
         HomeDisplayer displayer = new HomeDisplayer(this);
         presenter = new HomePresenter(gnManager, gnUser, displayer, new DatabaseAdapter(this));
         displayer.setPresenter(presenter);

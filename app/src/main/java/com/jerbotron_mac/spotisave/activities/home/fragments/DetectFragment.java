@@ -22,10 +22,10 @@ public class DetectFragment extends Fragment {
 
     private View mainLogo;
 
-    private static final float zeroScaleFactor = 1.5f;
+    private static final float zeroScaleFactor = 1.0f;
     private static final float maxScaleFactor = 3.0f;
     private volatile float lastScaleFactor = zeroScaleFactor;
-    private int currentPercent = 50;
+    private int currentPercent = 100;
     private volatile boolean isRunning = false;
     private volatile boolean isAudioProcessingStarted = false;
 
@@ -33,7 +33,6 @@ public class DetectFragment extends Fragment {
 
     private HomePresenter presenter;
     private ShakeDetector shakeDetector;
-    private ShakeListener shakeListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -74,8 +73,7 @@ public class DetectFragment extends Fragment {
 
     private void initShakeSensor(Context context) {
         shakeDetector = new ShakeDetector((SensorManager) context.getSystemService(Context.SENSOR_SERVICE));
-        shakeListener = new ShakeListener();
-        shakeDetector.registerShakeListener(shakeListener);
+        shakeDetector.registerShakeListener(new ShakeListener());
     }
 
     public void setPresenter(HomePresenter presenter) {

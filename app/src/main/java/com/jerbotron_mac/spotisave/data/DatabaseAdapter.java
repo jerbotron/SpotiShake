@@ -1,7 +1,3 @@
-/* Gracenote Android Music SDK Sample Application
- *
- * Copyright (C) 2010 Gracenote, Inc. All Rights Reserved.
- */
 package com.jerbotron_mac.spotisave.data;
 
 import android.content.*;
@@ -24,12 +20,9 @@ import static com.jerbotron_mac.spotisave.data.SongInfo.TRACK_TITLE;
 
 
 /**
- * <p>
  * This class will work as a utility class to deal with database. It will be
  * responsible for database connection, insert a row into database, retrieve the
  * cursor for select and update operations.
- * 
- * 
  */
 public final class DatabaseAdapter {
 

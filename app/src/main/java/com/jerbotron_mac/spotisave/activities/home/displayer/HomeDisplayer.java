@@ -98,7 +98,7 @@ public class HomeDisplayer {
                     }
                     case HomePresenter.FragmentEnum.HISTORY: {
                         detectFragment.setIsRunning(false);
-                        presenter.getHistory();
+//                        historyFragment.getHistory();
                         break;
                     }
                 }

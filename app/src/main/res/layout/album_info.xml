@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/spotifyDarkGray">
+    android:background="@color/spotifyBlack">
 
     <TextView
         android:id="@+id/song_title"
