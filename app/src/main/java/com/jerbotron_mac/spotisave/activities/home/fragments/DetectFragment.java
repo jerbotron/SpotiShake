@@ -12,11 +12,21 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.ScaleAnimation;
+import android.widget.Toast;
 
 import com.jerbotron_mac.spotisave.R;
 import com.jerbotron_mac.spotisave.activities.home.HomePresenter;
 import com.jerbotron_mac.spotisave.activities.home.custom.ShakeDetector;
 import com.jerbotron_mac.spotisave.utils.DeveloperUtils;
+
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
+
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.subjects.PublishSubject;
 
 public class DetectFragment extends Fragment {
 
@@ -34,9 +44,16 @@ public class DetectFragment extends Fragment {
     private HomePresenter presenter;
     private ShakeDetector shakeDetector;
 
+    private PublishSubject<Integer> amplitudeSubject;
+    private Consumer<Integer> amplitudeSubscriber;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        amplitudeSubject = PublishSubject.create();
+        amplitudeSubscriber = new SetDisplayAmplitudeSubscriber();
+        amplitudeSubject.observeOn(AndroidSchedulers.mainThread())
+                .subscribe(amplitudeSubscriber);
     }
 
     @Override
@@ -96,22 +113,14 @@ public class DetectFragment extends Fragment {
     }
 
     private void scaleAmplitude(int percent) {
-        if (activity != null && !isAudioProcessingStarted) {
-            SetDisplayAmplitudeRunnable setDisplayAmplitudeRunnable = new SetDisplayAmplitudeRunnable(percent);
-            activity.runOnUiThread(setDisplayAmplitudeRunnable);
+        if (activity != null) {
+            amplitudeSubject.onNext(percent);
         }
     }
 
-    private class SetDisplayAmplitudeRunnable implements Runnable {
-
-        int percent;
-
-        SetDisplayAmplitudeRunnable(int percent) {
-            this.percent = percent;
-        }
-
+    private class SetDisplayAmplitudeSubscriber implements Consumer<Integer> {
         @Override
-        public void run() {
+        public void accept(Integer percent) throws Exception {
             float scaleFactor = zeroScaleFactor + maxScaleFactor*((float) percent/100); // zero position plus audio wave amplitude percent
 
 //            Log.d(DetectFragment.class.getName(), "percent = " + percent);
@@ -136,7 +145,7 @@ public class DetectFragment extends Fragment {
         @Override
         public void onShake() {
             if (isRunning && !isAudioProcessingStarted) {
-                DeveloperUtils.showToast(getContext(), "Analyzing song...");
+                DeveloperUtils.showToast(getContext(), "Analyzing song...", Toast.LENGTH_SHORT);
                 presenter.tryIdentifyMusic();
                 isAudioProcessingStarted = true;
             }

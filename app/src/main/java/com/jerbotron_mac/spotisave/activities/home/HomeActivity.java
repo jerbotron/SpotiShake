@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 import com.gracenote.gnsdk.GnException;
 import com.gracenote.gnsdk.GnLicenseInputMode;
@@ -78,7 +79,7 @@ public class HomeActivity extends AppCompatActivity {
     private void startup() {
         initGnSDK();
         HomeDisplayer displayer = new HomeDisplayer(this);
-        presenter = new HomePresenter(gnManager, gnUser, displayer, new DatabaseAdapter(this));
+        presenter = new HomePresenter(gnUser, displayer, new DatabaseAdapter(this));
         displayer.setPresenter(presenter);
         presenter.start();
     }
@@ -86,7 +87,7 @@ public class HomeActivity extends AppCompatActivity {
     private void initGnSDK() {
         String gnsdkLicense = DeveloperUtils.getAssetAsString(GNSDK_LICENSE_FILENAME, getApplicationContext());
         if (gnsdkLicense == null) {
-            DeveloperUtils.showToast(this, "Error initializing GnSDK");
+            DeveloperUtils.showToast(this, "Error initializing GnSDK", Toast.LENGTH_SHORT);
             return;
         }
 

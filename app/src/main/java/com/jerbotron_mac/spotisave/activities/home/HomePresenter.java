@@ -2,6 +2,7 @@ package com.jerbotron_mac.spotisave.activities.home;
 
 import android.support.annotation.IntDef;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.gracenote.gnsdk.GnDescriptor;
 import com.gracenote.gnsdk.GnException;
@@ -32,7 +33,7 @@ import com.jerbotron_mac.spotisave.runnables.LocaleLoadRunnable;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.Scheduler;
+import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.Observable;
@@ -48,20 +49,14 @@ public class HomePresenter {
     private DatabaseAdapter databaseAdapter;
 
     // Gracenot SDK Objects
-    private GnManager gnManager;
     private GnUser gnUser;
     private GnMusicIdStream gnMusicIdStream;
     private IGnAudioSource gnAudioSource;
-    private GnLog gnLog;
-    private List<GnMusicId> musicIds = new ArrayList<>();
-    private List<GnMusicIdFile> musicIdFiles = new ArrayList<>();
     private List<GnMusicIdStream> musicIdStreams = new ArrayList<>();
 
-    HomePresenter(GnManager gnManager,
-                  GnUser gnUser,
+    HomePresenter(GnUser gnUser,
                   HomeDisplayer displayer,
                   DatabaseAdapter databaseAdapter) {
-        this.gnManager = gnManager;
         this.gnUser = gnUser;
         this.displayer = displayer;
         this.databaseAdapter = databaseAdapter;
@@ -148,7 +143,7 @@ public class HomePresenter {
 
                     @Override
                     public void onError(Throwable e) {
-
+                        e.printStackTrace();
                     }
 
                     @Override
@@ -173,12 +168,30 @@ public class HomePresenter {
     }
 
     public void updateAlbum(GnResponseAlbums responseAlbums) {
-        if (responseAlbums.resultCount() > 0) {
-            albumFragment.updateAlbum(responseAlbums);
-            historyFragment.saveSong(responseAlbums);
-        } else {
-            displayer.displayNoResults();
-        }
+        albumFragment.updateAlbum(responseAlbums);
+        historyFragment.saveSong(responseAlbums);
+    }
+
+    public Consumer<Integer> getRetrySubscriber() {
+        return new Consumer<Integer>() {
+            @Override
+            public void accept(Integer s) throws Exception {
+                switch (s) {
+                    case MusicIdStreamEvents.IdentifyState.IDENTIFIED: {
+                        break;
+                    }
+                    case MusicIdStreamEvents.IdentifyState.RETRY: {
+                        displayer.showToast("Still identifying...", Toast.LENGTH_SHORT);
+                        break;
+                    }
+                    case MusicIdStreamEvents.IdentifyState.NOT_FOUND: {
+                        displayer.showToast("Could not ID song, please try again.", Toast.LENGTH_SHORT);
+                        detectFragment.setIsAudioProcessingStarted(false);
+                        break;
+                    }
+                }
+            }
+        };
     }
 
     /**

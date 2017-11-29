@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.jerbotron_mac.spotisave.R;
 import com.jerbotron_mac.spotisave.activities.home.HomePresenter;
@@ -17,6 +18,7 @@ import com.jerbotron_mac.spotisave.activities.home.custom.ViewPagerAdapter;
 import com.jerbotron_mac.spotisave.activities.home.fragments.AlbumFragment;
 import com.jerbotron_mac.spotisave.activities.home.fragments.DetectFragment;
 import com.jerbotron_mac.spotisave.activities.home.fragments.HistoryFragment;
+import com.jerbotron_mac.spotisave.utils.DeveloperUtils;
 
 public class HomeDisplayer {
 
@@ -98,7 +100,6 @@ public class HomeDisplayer {
                     }
                     case HomePresenter.FragmentEnum.HISTORY: {
                         detectFragment.setIsRunning(false);
-//                        historyFragment.getHistory();
                         break;
                     }
                 }
@@ -141,8 +142,7 @@ public class HomeDisplayer {
         this.presenter = presenter;
     }
 
-    public void displayNoResults() {
-        Log.d(getClass().getName(), "could not id song");
-//        DeveloperUtils.showToast(activity, "Could not ID song, please try again!");
+    public void showToast(String message, int length) {
+        DeveloperUtils.showToast(activity, message, length);
     }
 }

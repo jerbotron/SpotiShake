@@ -32,8 +32,8 @@ public class DeveloperUtils {
         return assetString;
     }
 
-    public static void showToast(Context context, String message) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    public static void showToast(Context context, String message, int length) {
+        Toast.makeText(context, message, length).show();
     }
 
     public static boolean hasMicrophonePermission(Activity activity) {

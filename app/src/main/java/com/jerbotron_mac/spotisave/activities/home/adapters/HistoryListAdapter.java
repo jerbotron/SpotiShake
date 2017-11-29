@@ -59,7 +59,7 @@ public class HistoryListAdapter extends CursorRecyclerAdapter<HistoryListAdapter
     public void deleteSongFromDb(int position) {
         cursor.moveToPosition(position);
         Observable.just(cursor.getInt(cursor.getColumnIndexOrThrow(_ID)))
-                .subscribe(new DeleteRowSubscriber(position));
+                .subscribe(new DeleteRowSubscriber());
 //        notifyItemRemoved(position);
     }
 
@@ -90,12 +90,6 @@ public class HistoryListAdapter extends CursorRecyclerAdapter<HistoryListAdapter
     }
 
     private class DeleteRowSubscriber extends DisposableObserver<Integer> {
-
-        private int position;
-
-        public DeleteRowSubscriber(int position) {
-            this.position = position;
-        }
 
         @Override
         public void onNext(Integer rowId) {
