@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SpotiSave</string>
+    <string name="app_name">SpotiShake</string>
     <string name="action_settings">Settings</string>
 
     <!--Menu-->
@@ -14,5 +14,15 @@
     <!--Snack bar-->
     <string name="history_deleted">Deleted from history.</string>
     <string name="undo">UNDO</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <string name="pref_group_account">Spotify Account</string>
+    <string name="pref_account_login">Login to Spotify</string>
+    <string name="pref_auto_save_songs">Auto Save Songs</string>
+    <string name="pref_delete_history">Delete History</string>
+
+    <string name="pref_auto_save_songs_summary">Auto save identified songs to your Spotify account</string>
 
 </resources>

@@ -1,0 +1,23 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="@string/pref_group_account"
+        android:key="pref_key_my_account_settings">
+
+        <Preference
+            android:key="account_login"
+            android:title="@string/pref_account_login" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="auto_save_songs"
+            android:title="@string/pref_auto_save_songs"
+            android:summary="@string/pref_auto_save_songs_summary" />
+
+        <Preference
+            android:key="delete_history"
+            android:title="@string/pref_delete_history" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

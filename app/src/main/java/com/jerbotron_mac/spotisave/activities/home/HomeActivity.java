@@ -1,6 +1,7 @@
 package com.jerbotron_mac.spotisave.activities.home;
 
 import android.Manifest;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ import com.gracenote.gnsdk.GnUser;
 import com.gracenote.gnsdk.GnUserStore;
 import com.jerbotron_mac.spotisave.R;
 import com.jerbotron_mac.spotisave.activities.home.displayer.HomeDisplayer;
+import com.jerbotron_mac.spotisave.activities.settings.SettingsActivity;
 import com.jerbotron_mac.spotisave.data.DatabaseAdapter;
 import com.jerbotron_mac.spotisave.gracenote.SystemEvents;
 import com.jerbotron_mac.spotisave.utils.DeveloperUtils;
@@ -105,5 +107,10 @@ public class HomeActivity extends AppCompatActivity {
         } catch (GnException e) {
             e.printStackTrace();
         }
+    }
+
+    public void launchSettingsActivity() {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
     }
 }

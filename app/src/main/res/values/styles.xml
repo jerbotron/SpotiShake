@@ -11,6 +11,12 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="AppTheme.Settings" parent="AppTheme">
+        <item name="android:textColorPrimary">@color/offWhite</item>
+        <item name="android:textColorSecondary">@color/spotifyLightGray</item>
+        <item name="android:colorBackground">@color/spotifyBlack</item>
+    </style>
+
     <!--Tool bar themes-->
     <style name="MyToolBarTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
     </style>

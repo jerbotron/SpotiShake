@@ -1,6 +1,7 @@
 package com.jerbotron_mac.spotisave.activities.home.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -8,7 +9,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,8 +17,10 @@ import android.widget.LinearLayout;
 
 import com.gracenote.gnsdk.GnResponseAlbums;
 import com.jerbotron_mac.spotisave.R;
+import com.jerbotron_mac.spotisave.activities.home.HomeActivity;
 import com.jerbotron_mac.spotisave.activities.home.adapters.HistoryListAdapter;
 import com.jerbotron_mac.spotisave.activities.home.custom.RecyclerItemTouchHelper;
+import com.jerbotron_mac.spotisave.activities.settings.SettingsActivity;
 import com.jerbotron_mac.spotisave.data.DatabaseAdapter;
 
 public class HistoryFragment extends Fragment implements RecyclerItemTouchHelper.RecyclerItemTouchHelperListener {
@@ -39,7 +41,7 @@ public class HistoryFragment extends Fragment implements RecyclerItemTouchHelper
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
         fragmentLayout = (LinearLayout) view.findViewById(R.id.fragment_history_layout);
@@ -53,12 +55,11 @@ public class HistoryFragment extends Fragment implements RecyclerItemTouchHelper
         toolbar = (Toolbar) view.findViewById(R.id.history_toolbar);
         toolbar.setTitle(R.string.history_toolbar_title);
         toolbar.inflateMenu(R.menu.menu_history);
-
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                if (item.getItemId() == R.id.menu_edit) {
-                    Log.d("JW", "got to here");
+                if (item.getItemId() == R.id.menu_settings) {
+                    ((HomeActivity) context).launchSettingsActivity();
                 }
                 return false;
             }
@@ -71,7 +72,7 @@ public class HistoryFragment extends Fragment implements RecyclerItemTouchHelper
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(final Context context) {
         super.onAttach(context);
         this.context = context;
 
