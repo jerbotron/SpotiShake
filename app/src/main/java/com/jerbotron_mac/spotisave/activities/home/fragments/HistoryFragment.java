@@ -91,6 +91,11 @@ public class HistoryFragment extends Fragment implements RecyclerItemTouchHelper
         this.databaseAdapter = databaseAdapter;
     }
 
+    public void refreshView() {
+        historyListAdapter.refreshCursor();
+        historyListAdapter.notifyDataSetChanged();
+    }
+
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction, final int position) {
         if (viewHolder instanceof HistoryListAdapter.SongViewHolder) {

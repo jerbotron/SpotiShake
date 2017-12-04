@@ -2,6 +2,7 @@ package com.jerbotron_mac.spotisave.activities.settings;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.media.Ringtone;
@@ -18,9 +19,13 @@ import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 import com.jerbotron_mac.spotisave.R;
 
@@ -36,6 +41,8 @@ import com.jerbotron_mac.spotisave.R;
  * API Guide</a> for more information on developing a Settings UI.
  */
 public class SettingsActivity extends AppCompatPreferenceActivity {
+
+    private SettingsPresenter presenter;
 
     private static MainPreferencesFragment mainPreferencesFragment;
 
@@ -81,8 +88,17 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         super.onCreate(savedInstanceState);
         setupActionBar();
 
+        presenter = new SettingsPresenter(this);
+
         mainPreferencesFragment = new MainPreferencesFragment();
         getFragmentManager().beginTransaction().replace(android.R.id.content, mainPreferencesFragment).commit();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        presenter.stop();
+        finish();
     }
 
     /**
@@ -103,6 +119,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
                 || MainPreferencesFragment.class.getName().equals(fragmentName);
+    }
+
+    private void deleteHistory() {
+        presenter.deleteHistory();
     }
 
     /**
@@ -127,7 +147,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
             Preference loginPref = findPreference("account_login");
             SwitchPreference autoSavePref = (SwitchPreference) findPreference("auto_save_songs");
-            Preference deleteHistoryPref = findPreference("delete_history");
+            final Preference deleteHistoryPref = findPreference("delete_history");
 
             loginPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
@@ -146,9 +166,36 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             deleteHistoryPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
+                    onDeleteHistoryClick();
                     return false;
                 }
             });
+        }
+
+        public void onDeleteHistoryClick() {
+            final AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+            View view = alertDialog.getLayoutInflater().inflate(R.layout.dialog_delete_history, null);
+
+            Button cancel = (Button) view.findViewById(R.id.cancel_delete);
+            Button delete = (Button) view.findViewById(R.id.confirm_delete);
+
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    alertDialog.dismiss();
+                }
+            });
+
+            delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ((SettingsActivity) getActivity()).deleteHistory();
+                    alertDialog.dismiss();
+                }
+            });
+
+            alertDialog.setView(view);
+            alertDialog.show();
         }
 
         @Override

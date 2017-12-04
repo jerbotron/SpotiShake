@@ -8,6 +8,7 @@ import android.widget.*;
 
 import com.gracenote.gnsdk.*;
 import com.jerbotron_mac.spotisave.shared.MaterialColor;
+import com.jerbotron_mac.spotisave.utils.DeveloperUtils;
 
 import static android.provider.BaseColumns._ID;
 import static com.jerbotron_mac.spotisave.data.DatabaseHelper.TB_SONG_HISTORY;
@@ -81,9 +82,10 @@ public final class DatabaseAdapter {
 		int result = 0;
 		try {
 			result = db.delete(TB_SONG_HISTORY, null, null);
+            DeveloperUtils.showToast(context, "History deleted", Toast.LENGTH_SHORT);
 		} catch (SQLException e) {
 			e.printStackTrace();
-			Toast.makeText(context, "Failed to delete all records: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            DeveloperUtils.showToast(context, "Failed to delete all records: " + e.getMessage(), Toast.LENGTH_SHORT);
 		}
 		return result;
 	}

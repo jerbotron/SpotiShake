@@ -21,4 +21,13 @@
     <style name="MyToolBarTheme" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
     </style>
 
+    <!--AlertDialog themes-->
+    <style name="AppTheme.AlertDialogCustom" parent="@android:style/Theme.Dialog">
+        <item name="android:textColor">@color/offWhite</item>
+        <item name="android:colorPrimaryDark">@color/spotifyGreen</item>
+        <item name="android:colorAccent">@color/spotifyGreen</item>
+        <!--<item name="android:textColorSecondary">@color/spotifyLightGray</item>-->
+        <item name="android:background">@color/spotifyBlack</item>
+    </style>
+
 </resources>

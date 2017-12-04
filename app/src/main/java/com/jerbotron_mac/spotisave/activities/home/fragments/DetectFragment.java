@@ -31,6 +31,7 @@ import io.reactivex.subjects.PublishSubject;
 public class DetectFragment extends Fragment {
 
     private View mainLogo;
+    private View loadingIndicator;
 
     private static final float zeroScaleFactor = 1.0f;
     private static final float maxScaleFactor = 3.0f;
@@ -60,6 +61,7 @@ public class DetectFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_detect, container, false);
         mainLogo = view.findViewById(R.id.main_logo);
+        loadingIndicator = view.findViewById(R.id.loading_indicator);
         return view;
     }
 
@@ -97,6 +99,11 @@ public class DetectFragment extends Fragment {
         this.presenter = presenter;
     }
 
+    public void handleSongNotFound() {
+        setLoadingIndicator(false);
+        setIsAudioProcessingStarted(false);
+    }
+
     public void setIsAudioProcessingStarted(boolean isAudioProcessingStarted) {
         this.isAudioProcessingStarted = isAudioProcessingStarted;
     }
@@ -109,6 +116,14 @@ public class DetectFragment extends Fragment {
         if (isRunning && currentPercent != amplitudePercent) {
             scaleAmplitude(amplitudePercent);
             currentPercent = amplitudePercent;
+        }
+    }
+
+    public void setLoadingIndicator(boolean isVisible) {
+        if (isVisible) {
+            loadingIndicator.setVisibility(View.VISIBLE);
+        } else {
+            loadingIndicator.setVisibility(View.GONE);
         }
     }
 
@@ -145,7 +160,7 @@ public class DetectFragment extends Fragment {
         @Override
         public void onShake() {
             if (isRunning && !isAudioProcessingStarted) {
-                DeveloperUtils.showToast(getContext(), "Analyzing song...", Toast.LENGTH_SHORT);
+                setLoadingIndicator(true);
                 presenter.tryIdentifyMusic();
                 isAudioProcessingStarted = true;
             }

@@ -28,7 +28,6 @@ import com.jerbotron_mac.spotisave.activities.home.fragments.DetectFragment;
 import com.jerbotron_mac.spotisave.activities.home.fragments.HistoryFragment;
 import com.jerbotron_mac.spotisave.data.DatabaseAdapter;
 import com.jerbotron_mac.spotisave.gracenote.MusicIdStreamEvents;
-import com.jerbotron_mac.spotisave.runnables.LocaleLoadRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +52,8 @@ public class HomePresenter {
     private GnMusicIdStream gnMusicIdStream;
     private IGnAudioSource gnAudioSource;
     private List<GnMusicIdStream> musicIdStreams = new ArrayList<>();
+
+    private @FragmentEnum int currentFragment;
 
     HomePresenter(GnUser gnUser,
                   HomeDisplayer displayer,
@@ -90,6 +91,10 @@ public class HomePresenter {
             audioProcessThread.start();
         }
 
+        if (currentFragment == FragmentEnum.HISTORY) {
+            historyFragment.refreshView();
+        }
+
         databaseAdapter.open();
     }
 
@@ -109,8 +114,10 @@ public class HomePresenter {
                 e.printStackTrace();
             }
         }
+    }
 
-//        databaseAdapter.close();
+    public void setCurrentFragment(int position) {
+        this.currentFragment = position;
     }
 
     private void initFragments() {
@@ -178,6 +185,7 @@ public class HomePresenter {
             public void accept(Integer s) throws Exception {
                 switch (s) {
                     case MusicIdStreamEvents.IdentifyState.IDENTIFIED: {
+                        detectFragment.setLoadingIndicator(false);
                         break;
                     }
                     case MusicIdStreamEvents.IdentifyState.RETRY: {
@@ -186,7 +194,7 @@ public class HomePresenter {
                     }
                     case MusicIdStreamEvents.IdentifyState.NOT_FOUND: {
                         displayer.showToast("Could not ID song, please try again.", Toast.LENGTH_SHORT);
-                        detectFragment.setIsAudioProcessingStarted(false);
+                        detectFragment.handleSongNotFound();
                         break;
                     }
                 }

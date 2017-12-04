@@ -88,6 +88,8 @@ public class HomeDisplayer {
                 bottomNavigationView.getMenu().getItem(position).setChecked(true);
                 prevMenuItem = bottomNavigationView.getMenu().getItem(position);
 
+                presenter.setCurrentFragment(position);
+
                 switch (position) {
                     case HomePresenter.FragmentEnum.ALBUM: {
                         detectFragment.setIsRunning(false);
