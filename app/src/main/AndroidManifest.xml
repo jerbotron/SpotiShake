@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.jerbotron_mac.spotisave">
+    package="com.jerbotron_mac.spotishake">
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
+        android:name=".application.SpotiShakeApplication"
         android:icon="@drawable/spotishake_logo"
         android:label="@string/app_name">
         <uses-library
@@ -17,7 +18,7 @@
             android:required="false" />
 
         <activity
-            android:name=".activities.home.HomeActivity"
+            android:name="com.jerbotron_mac.spotishake.activities.home.HomeActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
@@ -28,7 +29,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.settings.SettingsActivity"
+            android:name="com.jerbotron_mac.spotishake.activities.settings.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:theme="@style/AppTheme.Settings">
         </activity>

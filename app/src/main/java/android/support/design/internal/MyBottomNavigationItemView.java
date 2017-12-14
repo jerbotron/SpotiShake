@@ -133,9 +133,9 @@ public class MyBottomNavigationItemView extends FrameLayout implements MenuView.
     @Override
     public void setChecked(boolean checked) {
         if (checked) {
-            mIcon.setImageTintList(ColorStateList.valueOf(res.getColor(com.jerbotron_mac.spotisave.R.color.white)));
+            mIcon.setImageTintList(ColorStateList.valueOf(res.getColor(com.jerbotron_mac.spotishake.R.color.white)));
         } else {
-            mIcon.setImageTintList(ColorStateList.valueOf(res.getColor(com.jerbotron_mac.spotisave.R.color.spotifyLightGray)));
+            mIcon.setImageTintList(ColorStateList.valueOf(res.getColor(com.jerbotron_mac.spotishake.R.color.spotifyLightGray)));
         }
         refreshDrawableState();
     }

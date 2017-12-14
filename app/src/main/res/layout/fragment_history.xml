@@ -4,7 +4,7 @@
     android:id="@+id/fragment_history_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.jerbotron_mac.spotisave.activities.home.fragments.HistoryFragment"
+    tools:context="com.jerbotron_mac.spotishake.activities.home.fragments.HistoryFragment"
     android:orientation="vertical"
     android:background="@color/spotifyBlack">
 

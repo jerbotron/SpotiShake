@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.jerbotron_mac.spotisave.activities.home.fragments.AlbumFragment"
+    tools:context="com.jerbotron_mac.spotishake.activities.home.fragments.AlbumFragment"
     android:id="@+id/album_container"
     android:background="@color/spotifyBlack">
 
