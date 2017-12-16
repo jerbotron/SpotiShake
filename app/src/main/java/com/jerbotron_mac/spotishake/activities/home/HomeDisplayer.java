@@ -1,4 +1,4 @@
-package com.jerbotron_mac.spotishake.activities.home.displayer;
+package com.jerbotron_mac.spotishake.activities.home;
 
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;

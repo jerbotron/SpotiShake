@@ -19,10 +19,8 @@ import com.gracenote.gnsdk.GnUserStore;
 import com.jerbotron_mac.spotishake.R;
 import com.jerbotron_mac.spotishake.activities.home.dagger.DaggerHomeComponent;
 import com.jerbotron_mac.spotishake.activities.home.dagger.HomeComponent;
-import com.jerbotron_mac.spotishake.activities.home.displayer.HomeDisplayer;
 import com.jerbotron_mac.spotishake.activities.settings.SettingsActivity;
 import com.jerbotron_mac.spotishake.application.SpotiShakeApplication;
-import com.jerbotron_mac.spotishake.data.DatabaseAdapter;
 import com.jerbotron_mac.spotishake.gracenote.SystemEvents;
 import com.jerbotron_mac.spotishake.utils.AppUtils;
 

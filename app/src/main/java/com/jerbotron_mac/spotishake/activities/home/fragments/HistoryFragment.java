@@ -131,22 +131,4 @@ public class HistoryFragment extends Fragment implements RecyclerItemTouchHelper
     public void saveSong(GnResponseAlbums responseAlbums) {
         historyListAdapter.saveSongToDb(responseAlbums);
     }
-
-    private class EmptyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
-        @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return null;
-        }
-
-        @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-
-        }
-
-        @Override
-        public int getItemCount() {
-            return 0;
-        }
-    }
 }

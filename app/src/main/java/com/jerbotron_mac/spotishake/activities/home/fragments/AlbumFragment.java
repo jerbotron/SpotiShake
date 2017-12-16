@@ -19,7 +19,7 @@ import com.gracenote.gnsdk.GnImageSize;
 import com.gracenote.gnsdk.GnResponseAlbums;
 import com.jerbotron_mac.spotishake.R;
 import com.jerbotron_mac.spotishake.activities.home.HomePresenter;
-import com.jerbotron_mac.spotishake.activities.home.displayer.HomeDisplayer;
+import com.jerbotron_mac.spotishake.activities.home.HomeDisplayer;
 import com.jerbotron_mac.spotishake.utils.AppUtils;
 import com.squareup.picasso.Picasso;
 

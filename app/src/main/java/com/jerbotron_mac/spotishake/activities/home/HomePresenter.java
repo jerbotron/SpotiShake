@@ -19,7 +19,6 @@ import com.gracenote.gnsdk.GnUser;
 import com.gracenote.gnsdk.IGnAudioSource;
 import com.jerbotron_mac.spotishake.activities.home.adapters.AudioVisualizerAdapter;
 import com.jerbotron_mac.spotishake.activities.home.dagger.HomeComponent;
-import com.jerbotron_mac.spotishake.activities.home.displayer.HomeDisplayer;
 import com.jerbotron_mac.spotishake.activities.home.fragments.AlbumFragment;
 import com.jerbotron_mac.spotishake.activities.home.fragments.DetectFragment;
 import com.jerbotron_mac.spotishake.activities.home.fragments.HistoryFragment;

@@ -4,7 +4,7 @@
         android:title="@string/pref_group_account"
         android:key="pref_key_my_account_settings">
 
-        <Preference
+        <com.jerbotron_mac.spotishake.activities.settings.fragments.LoginPreference
             android:key="account_login"
             android:title="@string/pref_account_login" />
 

@@ -21,7 +21,8 @@
     <!-- Strings related to Settings -->
 
     <string name="pref_group_account">Spotify Account</string>
-    <string name="pref_account_login">Login to Spotify</string>
+    <string name="pref_account_login">Login</string>
+    <string name="pref_account_logout">Logout</string>
     <string name="pref_auto_save_songs">Auto Save Songs</string>
     <string name="pref_delete_history">Delete History</string>
 

@@ -6,4 +6,6 @@ public class AppConstants {
     public static final String GNSDK_LICENSE_FILENAME = "license.txt";	// app expects this file as an "asset"
     public static final String GNSDK_LOG_FILENAME = "sample.log";
     public static final String APP_STRING = "SpotiPlus";
+
+    public static final int SETTINGS_PREF_REQUEST_CODE = 1337;
 }

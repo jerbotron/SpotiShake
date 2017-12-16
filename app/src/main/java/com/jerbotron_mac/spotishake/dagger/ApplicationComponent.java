@@ -3,7 +3,9 @@ package com.jerbotron_mac.spotishake.dagger;
 import com.jerbotron_mac.spotishake.application.SpotiShakeApplication;
 import com.jerbotron_mac.spotishake.dagger.scopes.ApplicationScope;
 import com.jerbotron_mac.spotishake.data.DatabaseAdapter;
+import com.jerbotron_mac.spotishake.network.SpotifyServiceWrapper;
 import com.jerbotron_mac.spotishake.utils.AppUtils;
+import com.jerbotron_mac.spotishake.utils.SharedUserPrefs;
 
 import dagger.Component;
 import dagger.Module;
@@ -34,8 +36,22 @@ public interface ApplicationComponent {
         public DatabaseAdapter databaseAdapter(AppUtils appUtils) {
             return new DatabaseAdapter(application.getApplicationContext(), appUtils);
         }
+
+        @Provides
+        @ApplicationScope
+        public SharedUserPrefs sharedUserPrefs() {
+            return new SharedUserPrefs(application.getApplicationContext());
+        }
+
+        @Provides
+        @ApplicationScope
+        public SpotifyServiceWrapper spotifyServiceWrapper(SharedUserPrefs sharedUserPrefs) {
+            return new SpotifyServiceWrapper(sharedUserPrefs);
+        }
     }
 
     AppUtils provideAppUtils();
     DatabaseAdapter provideDatabaseAdapter();
+    SharedUserPrefs provideSharedUserPrefs();
+    SpotifyServiceWrapper provideSpotifyServiceWrapper();
 }

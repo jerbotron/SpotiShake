@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.jerbotron_mac.spotishake.dagger.ApplicationComponent;
 import com.jerbotron_mac.spotishake.dagger.DaggerApplicationComponent;
+import com.jerbotron_mac.spotishake.network.SpotifyServiceWrapper;
 
 public class SpotiShakeApplication extends Application {
 
