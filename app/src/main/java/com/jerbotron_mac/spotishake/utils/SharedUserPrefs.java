@@ -2,6 +2,7 @@ package com.jerbotron_mac.spotishake.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import kaaes.spotify.webapi.android.models.UserPrivate;
 
@@ -22,6 +23,7 @@ public class SharedUserPrefs {
 
     public void setSpotifyAuthToken(String authToken) {
         sharedPrefs.edit().putString(SPOTIFY_AUTH_TOKEN, authToken).apply();
+        Log.d("JWDEBUG", "token = " + authToken);
     }
 
     public String getSpotifyAuthToken() {

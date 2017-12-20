@@ -60,7 +60,6 @@ public class HistoryListAdapter extends CursorRecyclerAdapter<HistoryListAdapter
         cursor.moveToPosition(position);
         Observable.just(cursor.getInt(cursor.getColumnIndexOrThrow(_ID)))
                 .subscribe(new DeleteRowSubscriber());
-//        notifyItemRemoved(position);
     }
 
     public void refreshCursor() {

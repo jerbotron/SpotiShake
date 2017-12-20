@@ -72,7 +72,8 @@ public class SettingsPresenter {
     }
 
     public void handleSpotifyLogin(int resultCode, Intent intent) {
-        AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
+        AuthenticationResponse response = AuthenticationClient.
+        (resultCode, intent);
         switch (response.getType()) {
             // Response was successful and contains auth token
             case TOKEN:

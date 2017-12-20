@@ -13,6 +13,7 @@ import android.widget.Button;
 
 import com.jerbotron_mac.spotishake.R;
 import com.jerbotron_mac.spotishake.activities.settings.SettingsPresenter;
+import com.jerbotron_mac.spotishake.shared.AppConstants;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -78,7 +79,7 @@ public class MainPreferencesFragment extends PreferenceFragment {
 
     public void openLoginWindow() {
         final AuthenticationRequest request = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI)
-                .setScopes(new String[]{"user-read-private", "playlist-read", "playlist-read-private", "streaming"})
+                .setScopes(AppConstants.SPOTIFY_CLIENT_SCOPES)
                 .build();
 
         AuthenticationClient.openLoginActivity(getActivity(), SETTINGS_PREF_REQUEST_CODE, request);

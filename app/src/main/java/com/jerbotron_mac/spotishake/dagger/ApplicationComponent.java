@@ -45,8 +45,9 @@ public interface ApplicationComponent {
 
         @Provides
         @ApplicationScope
-        public SpotifyServiceWrapper spotifyServiceWrapper(SharedUserPrefs sharedUserPrefs) {
-            return new SpotifyServiceWrapper(sharedUserPrefs);
+        public SpotifyServiceWrapper spotifyServiceWrapper(SharedUserPrefs sharedUserPrefs,
+                                                           AppUtils appUtils) {
+            return new SpotifyServiceWrapper(sharedUserPrefs, appUtils);
         }
     }
 

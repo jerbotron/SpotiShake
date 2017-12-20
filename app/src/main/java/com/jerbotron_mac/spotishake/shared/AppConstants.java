@@ -8,4 +8,7 @@ public class AppConstants {
     public static final String APP_STRING = "SpotiPlus";
 
     public static final int SETTINGS_PREF_REQUEST_CODE = 1337;
+
+    public static final String[] SPOTIFY_CLIENT_SCOPES =
+            new String[]{"user-read-private", "user-library-read", "user-library-modify"};
 }

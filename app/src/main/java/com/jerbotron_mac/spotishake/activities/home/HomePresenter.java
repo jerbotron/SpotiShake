@@ -4,8 +4,11 @@ import android.support.annotation.IntDef;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.gracenote.gnsdk.GnAlbum;
+import com.gracenote.gnsdk.GnAlbumIterator;
 import com.gracenote.gnsdk.GnDescriptor;
 import com.gracenote.gnsdk.GnException;
+import com.gracenote.gnsdk.GnImageSize;
 import com.gracenote.gnsdk.GnLanguage;
 import com.gracenote.gnsdk.GnLocale;
 import com.gracenote.gnsdk.GnLocaleGroup;
@@ -24,6 +27,8 @@ import com.jerbotron_mac.spotishake.activities.home.fragments.DetectFragment;
 import com.jerbotron_mac.spotishake.activities.home.fragments.HistoryFragment;
 import com.jerbotron_mac.spotishake.data.DatabaseAdapter;
 import com.jerbotron_mac.spotishake.gracenote.MusicIdStreamEvents;
+import com.jerbotron_mac.spotishake.network.SpotifyServiceWrapper;
+import com.jerbotron_mac.spotishake.network.TrackData;
 import com.jerbotron_mac.spotishake.utils.AppUtils;
 
 import java.util.ArrayList;
@@ -35,6 +40,10 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.Observable;
+import kaaes.spotify.webapi.android.SpotifyCallback;
+import kaaes.spotify.webapi.android.SpotifyError;
+import kaaes.spotify.webapi.android.models.TracksPager;
+import retrofit.client.Response;
 
 import static com.jerbotron_mac.spotishake.shared.AppConstants.APP_STRING;
 
@@ -42,6 +51,7 @@ public class HomePresenter {
 
     @Inject DatabaseAdapter databaseAdapter;
     @Inject AppUtils appUtils;
+    @Inject SpotifyServiceWrapper spotifyServiceWrapper;
 
     private HomeDisplayer displayer;
     private AlbumFragment albumFragment;
@@ -174,8 +184,36 @@ public class HomePresenter {
     }
 
     public void updateAlbum(GnResponseAlbums responseAlbums) {
+        addSongToSpotify(responseAlbums);
         albumFragment.updateAlbum(responseAlbums);
         historyFragment.saveSong(responseAlbums);
+    }
+
+    public void addSongToSpotify(GnResponseAlbums gnAlbums) {
+        GnAlbumIterator iter = gnAlbums.albums().getIterator();
+        try {
+            TrackData.Builder builder = new TrackData.Builder();
+            while (iter.hasNext()) {
+                GnAlbum album = iter.next();
+                if (album.title().display() != null) {
+                    builder.setAlbum(album.title().display());
+                }
+
+                if (album.trackMatched() != null) {
+                    String trackArtist = album.trackMatched().artist().name().display();
+                    if (trackArtist == null || trackArtist.isEmpty()) {
+                        //use album artist if track artist not available
+                        trackArtist = album.artist().name().display();
+                    }
+                    builder.setArtist(trackArtist);
+                    builder.setTrack(album.trackMatched().title().display());
+                }
+            }
+
+            spotifyServiceWrapper.saveTrackToSavedSongs(builder.build());
+        } catch (GnException e) {
+            e.printStackTrace();
+        }
     }
 
     public Consumer<Integer> getRetrySubscriber() {

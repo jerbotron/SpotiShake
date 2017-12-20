@@ -23,8 +23,6 @@ import com.jerbotron_mac.spotishake.data.DatabaseAdapter;
 
 public class HistoryFragment extends Fragment implements RecyclerItemTouchHelper.RecyclerItemTouchHelperListener {
 
-    private RecyclerView recyclerView;
-    private Toolbar toolbar;
     private LinearLayout fragmentLayout;
 
     private HistoryListAdapter historyListAdapter;
@@ -39,18 +37,19 @@ public class HistoryFragment extends Fragment implements RecyclerItemTouchHelper
     }
 
     @Override
-    public View onCreateView(final LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(final LayoutInflater inflater,
+                             ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
         fragmentLayout = (LinearLayout) view.findViewById(R.id.fragment_history_layout);
-        recyclerView = (RecyclerView) view.findViewById(R.id.song_history_recycler_view);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.song_history_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         if (historyListAdapter != null) {
             historyListAdapter.refreshCursor();
             recyclerView.setAdapter(historyListAdapter);
         }
 
-        toolbar = (Toolbar) view.findViewById(R.id.history_toolbar);
+        Toolbar toolbar = (Toolbar) view.findViewById(R.id.history_toolbar);
         toolbar.setTitle(R.string.history_toolbar_title);
         toolbar.inflateMenu(R.menu.menu_history);
         toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
@@ -58,6 +57,7 @@ public class HistoryFragment extends Fragment implements RecyclerItemTouchHelper
             public boolean onMenuItemClick(MenuItem item) {
                 if (item.getItemId() == R.id.menu_settings) {
                     ((HomeActivity) context).launchSettingsActivity();
+                    return true;
                 }
                 return false;
             }

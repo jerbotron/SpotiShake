@@ -66,27 +66,23 @@ public final class DatabaseAdapter {
         }
     }
 
-	public int deleteRow(String rowId) {
-		int result = 0;
+	public void deleteRow(String rowId) {
 		try {
-			result = db.delete(TB_SONG_HISTORY, _ID + " = ?", new String[]{rowId});
+			db.delete(TB_SONG_HISTORY, _ID + " = ?", new String[]{rowId});
 		} catch (SQLException e) {
 			e.printStackTrace();
             appUtils.showToast("Failed to delete record: " + e.getMessage(), Toast.LENGTH_SHORT);
 		}
-		return result;
 	}
 
-	public int deleteAll() {
-		int result = 0;
+	public void deleteAll() {
 		try {
-			result = db.delete(TB_SONG_HISTORY, null, null);
+			db.delete(TB_SONG_HISTORY, null, null);
             appUtils.showToast("History deleted", Toast.LENGTH_SHORT);
 		} catch (SQLException e) {
 			e.printStackTrace();
             appUtils.showToast("Failed to delete all records: " + e.getMessage(), Toast.LENGTH_SHORT);
 		}
-		return result;
 	}
 
 	public Cursor getCursor() {
