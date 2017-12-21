@@ -7,6 +7,8 @@ public class AppConstants {
     public static final String GNSDK_LOG_FILENAME = "sample.log";
     public static final String APP_STRING = "SpotiPlus";
 
+    public static final String CLIENT_ID = "ec58f1c44e1d4a2ca919bde5bb7bbc13";
+    public static final String REDIRECT_URI = "spotishake://callback";
     public static final int SETTINGS_PREF_REQUEST_CODE = 1337;
 
     public static final String[] SPOTIFY_CLIENT_SCOPES =

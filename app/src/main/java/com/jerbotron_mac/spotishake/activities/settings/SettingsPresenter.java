@@ -72,8 +72,7 @@ public class SettingsPresenter {
     }
 
     public void handleSpotifyLogin(int resultCode, Intent intent) {
-        AuthenticationResponse response = AuthenticationClient.
-        (resultCode, intent);
+        AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
         switch (response.getType()) {
             // Response was successful and contains auth token
             case TOKEN:
@@ -94,7 +93,7 @@ public class SettingsPresenter {
     private void onAuthenticationComplete(AuthenticationResponse authResponse) {
         // Once we have obtained an authorization token, we can proceed with creating a Player.
         sharedUserPrefs.setSpotifyAuthToken(authResponse.getAccessToken());
-        spotifyServiceWrapper.setAccessToken(authResponse.getAccessToken());
+//        spotifyServiceWrapper.setAccessToken(authResponse.getAccessToken());
         spotifyServiceWrapper.getUserProfile(new SpotifyCallback<UserPrivate>() {
             @Override
             public void failure(SpotifyError spotifyError) {
@@ -114,8 +113,7 @@ public class SettingsPresenter {
     }
 
     public boolean isLoggedIn() {
-        String spotifyAuthToken = sharedUserPrefs.getSpotifyAuthToken();
-        return spotifyAuthToken != null && !spotifyAuthToken.equals("");
+        return sharedUserPrefs.isUserLoggedIn();
     }
 
     public void logoutSpotify() {

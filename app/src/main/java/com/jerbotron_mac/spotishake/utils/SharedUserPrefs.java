@@ -58,4 +58,9 @@ public class SharedUserPrefs {
         setUserProfileImageUrl(null);
         setUserDisplayName(null);
     }
+
+    public boolean isUserLoggedIn() {
+        String spotifyAuthToken = getSpotifyAuthToken();
+        return spotifyAuthToken != null && !spotifyAuthToken.equals("");
+    }
 }

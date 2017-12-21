@@ -17,44 +17,16 @@ import kaaes.spotify.webapi.android.models.UserPrivate;
 
 
 
-import retrofit.RequestInterceptor;
-import retrofit.RestAdapter;
 import retrofit.client.Response;
 
 public class SpotifyServiceWrapper {
 
-    private SpotifyApi spotifyApi;
     private SpotifyService spotifyService;
-    private RestAdapter restAdapter;
     private AppUtils appUtils;
 
-    public SpotifyServiceWrapper(SharedUserPrefs sharedUserPrefs, AppUtils appUtils) {
+    public SpotifyServiceWrapper(SpotifyService spotifyService, AppUtils appUtils) {
+        this.spotifyService = spotifyService;
         this.appUtils = appUtils;
-        spotifyApi = new SpotifyApi();
-
-        String accessToken = sharedUserPrefs.getSpotifyAuthToken();
-
-        if (accessToken != null && !accessToken.equals("")) {
-            setAccessToken(accessToken);
-        }
-    }
-
-    public void setAccessToken(String accessToken) {
-        spotifyApi.setAccessToken(accessToken);
-        setupRestAdapter(accessToken);
-    }
-
-    private void setupRestAdapter(final String accessToken) {
-        restAdapter = new RestAdapter.Builder()
-                .setEndpoint(SpotifyApi.SPOTIFY_WEB_API_ENDPOINT)
-                .setRequestInterceptor(new RequestInterceptor() {
-                    @Override
-                    public void intercept(RequestFacade request) {
-                        request.addHeader("Authorization", "Bearer " + accessToken);
-                    }
-                }).build();
-
-        spotifyService = restAdapter.create(SpotifyService.class);
     }
 
     public void getUserProfile(SpotifyCallback<UserPrivate> callback) {

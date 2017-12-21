@@ -18,6 +18,8 @@ import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
+import static com.jerbotron_mac.spotishake.shared.AppConstants.CLIENT_ID;
+import static com.jerbotron_mac.spotishake.shared.AppConstants.REDIRECT_URI;
 import static com.jerbotron_mac.spotishake.shared.AppConstants.SETTINGS_PREF_REQUEST_CODE;
 
 /**
@@ -26,9 +28,6 @@ import static com.jerbotron_mac.spotishake.shared.AppConstants.SETTINGS_PREF_REQ
  */
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class MainPreferencesFragment extends PreferenceFragment {
-
-    private static final String CLIENT_ID = "ec58f1c44e1d4a2ca919bde5bb7bbc13";
-    private static final String REDIRECT_URI = "spotishake://callback";
 
     private LoginPreference loginPref;
     private SettingsPresenter presenter;
