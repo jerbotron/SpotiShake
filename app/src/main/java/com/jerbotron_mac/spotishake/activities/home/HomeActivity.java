@@ -22,9 +22,19 @@ import com.jerbotron_mac.spotishake.activities.home.dagger.HomeComponent;
 import com.jerbotron_mac.spotishake.activities.settings.SettingsActivity;
 import com.jerbotron_mac.spotishake.application.SpotiShakeApplication;
 import com.jerbotron_mac.spotishake.gracenote.SystemEvents;
+import com.jerbotron_mac.spotishake.network.SpotifyAuthService;
+import com.jerbotron_mac.spotishake.network.requests.AuthRequest;
+import com.jerbotron_mac.spotishake.network.responses.AuthResponse;
+import com.jerbotron_mac.spotishake.network.subscribers.AuthTokenSubscriber;
 import com.jerbotron_mac.spotishake.utils.AppUtils;
+import com.jerbotron_mac.spotishake.utils.SharedUserPrefs;
 
 import javax.inject.Inject;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 import static com.jerbotron_mac.spotishake.shared.AppConstants.APP_STRING;
 import static com.jerbotron_mac.spotishake.shared.AppConstants.GNSDK_CLIENT_ID;
@@ -35,6 +45,8 @@ import static com.jerbotron_mac.spotishake.shared.AppConstants.GNSDK_LICENSE_FIL
 public class HomeActivity extends AppCompatActivity {
 
     @Inject AppUtils appUtils;
+    @Inject SpotifyAuthService authService;
+    @Inject SharedUserPrefs sharedUserPrefs;
 
     // Gracenot SDK Objects
     private GnManager gnManager;

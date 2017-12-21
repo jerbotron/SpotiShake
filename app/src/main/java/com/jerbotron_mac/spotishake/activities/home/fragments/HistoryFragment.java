@@ -75,7 +75,6 @@ public class HistoryFragment extends Fragment implements RecyclerItemTouchHelper
         this.context = context;
 
         if (historyListAdapter == null) {
-            databaseAdapter.open();
             historyListAdapter = new HistoryListAdapter(context, databaseAdapter);
         }
     }

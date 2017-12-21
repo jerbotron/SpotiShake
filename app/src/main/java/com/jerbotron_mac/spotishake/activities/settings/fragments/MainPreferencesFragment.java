@@ -77,7 +77,7 @@ public class MainPreferencesFragment extends PreferenceFragment {
     }
 
     public void openLoginWindow() {
-        final AuthenticationRequest request = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI)
+        final AuthenticationRequest request = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.CODE, REDIRECT_URI)
                 .setScopes(AppConstants.SPOTIFY_CLIENT_SCOPES)
                 .build();
 

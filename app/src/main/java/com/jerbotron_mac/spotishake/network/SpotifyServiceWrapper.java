@@ -1,14 +1,11 @@
 package com.jerbotron_mac.spotishake.network;
 
-import android.util.Log;
 import android.widget.Toast;
 
 import com.jerbotron_mac.spotishake.utils.AppUtils;
-import com.jerbotron_mac.spotishake.utils.SharedUserPrefs;
 
 import java.util.Map;
 
-import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.SpotifyService;
@@ -22,6 +19,7 @@ import retrofit.client.Response;
 public class SpotifyServiceWrapper {
 
     private SpotifyService spotifyService;
+    private SpotifyAuthService authService;
     private AppUtils appUtils;
 
     public SpotifyServiceWrapper(SpotifyService spotifyService, AppUtils appUtils) {

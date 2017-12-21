@@ -9,7 +9,11 @@ import android.util.Log;
 import com.jerbotron_mac.spotishake.activities.settings.dagger.SettingsComponent;
 import com.jerbotron_mac.spotishake.activities.settings.fragments.MainPreferencesFragment;
 import com.jerbotron_mac.spotishake.data.DatabaseAdapter;
+import com.jerbotron_mac.spotishake.network.SpotifyAuthService;
 import com.jerbotron_mac.spotishake.network.SpotifyServiceWrapper;
+import com.jerbotron_mac.spotishake.network.requests.AuthRequest;
+import com.jerbotron_mac.spotishake.network.responses.AuthResponse;
+import com.jerbotron_mac.spotishake.shared.AppConstants;
 import com.jerbotron_mac.spotishake.utils.SharedUserPrefs;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -19,6 +23,8 @@ import javax.inject.Inject;
 import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.models.UserPrivate;
+import retrofit.Callback;
+import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 public class SettingsPresenter {
@@ -26,6 +32,7 @@ public class SettingsPresenter {
     @Inject DatabaseAdapter databaseAdapter;
     @Inject SharedUserPrefs sharedUserPrefs;
     @Inject SpotifyServiceWrapper spotifyServiceWrapper;
+    @Inject SpotifyAuthService authService;
 
     private MainPreferencesFragment mainPreferencesFragment;
 
@@ -75,7 +82,7 @@ public class SettingsPresenter {
         AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
         switch (response.getType()) {
             // Response was successful and contains auth token
-            case TOKEN:
+            case CODE:
                 onAuthenticationComplete(response);
                 break;
 
@@ -91,19 +98,33 @@ public class SettingsPresenter {
     }
 
     private void onAuthenticationComplete(AuthenticationResponse authResponse) {
-        // Once we have obtained an authorization token, we can proceed with creating a Player.
-        sharedUserPrefs.setSpotifyAuthToken(authResponse.getAccessToken());
-//        spotifyServiceWrapper.setAccessToken(authResponse.getAccessToken());
-        spotifyServiceWrapper.getUserProfile(new SpotifyCallback<UserPrivate>() {
+        sharedUserPrefs.setAccessCode(authResponse.getCode());
+        authService.getAuthTokens(AppConstants.GRANT_TYPE,
+                authResponse.getCode(),
+                AppConstants.REDIRECT_URI,
+                AppConstants.CLIENT_ID,
+                AppConstants.CLIENT_SECRET,
+                new Callback<AuthResponse>() {
             @Override
-            public void failure(SpotifyError spotifyError) {
+            public void success(AuthResponse authResponse, Response response) {
+                sharedUserPrefs.saveAuthData(authResponse);
+                spotifyServiceWrapper.getUserProfile(new SpotifyCallback<UserPrivate>() {
+                    @Override
+                    public void failure(SpotifyError spotifyError) {
+                        spotifyError.printStackTrace();
+                    }
 
+                    @Override
+                    public void success(UserPrivate userPrivate, Response response) {
+                        sharedUserPrefs.saveUserInfo(userPrivate);
+                        mainPreferencesFragment.handleUserLogin();
+                    }
+                });
             }
 
             @Override
-            public void success(UserPrivate userPrivate, Response response) {
-                sharedUserPrefs.saveUserInfo(userPrivate);
-                mainPreferencesFragment.handleUserLogin();
+            public void failure(RetrofitError error) {
+                error.printStackTrace();
             }
         });
     }

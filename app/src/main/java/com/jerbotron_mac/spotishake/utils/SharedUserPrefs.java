@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.jerbotron_mac.spotishake.network.responses.AuthResponse;
+
 import kaaes.spotify.webapi.android.models.UserPrivate;
 
 public class SharedUserPrefs {
@@ -11,7 +13,10 @@ public class SharedUserPrefs {
     private static final String SHARED_PREFS_NAME = "shared_user_prefs";
 
     // Keys
-    private static final String SPOTIFY_AUTH_TOKEN = "spotify_auth_token";
+    private static final String REFRESH_TOKEN = "refresh_token";
+    private static final String ACCESS_TOKEN = "access_token";
+    private static final String ACCESSS_TOKEN_TTL = "access_token_ttl";
+    private static final String ACCESS_CODE = "access_code";
     private static final String USER_PROFILE_IMAGE_URL = "user_profile_image_url";
     private static final String USER_DISPLAY_NAME  = "user_display_name";
 
@@ -21,13 +26,37 @@ public class SharedUserPrefs {
         this.sharedPrefs = context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
     }
 
-    public void setSpotifyAuthToken(String authToken) {
-        sharedPrefs.edit().putString(SPOTIFY_AUTH_TOKEN, authToken).apply();
+    public void setRefreshToken(String refreshToken) {
+        sharedPrefs.edit().putString(REFRESH_TOKEN, refreshToken).apply();
+    }
+
+    public String getRefreshToken() {
+        return sharedPrefs.getString(REFRESH_TOKEN, null);
+    }
+
+    public void setAccesssTokenTtl(int ttl) {
+        sharedPrefs.edit().putInt(ACCESSS_TOKEN_TTL, ttl).apply();
+    }
+
+    public int getAccessTokenTtl() {
+        return sharedPrefs.getInt(ACCESSS_TOKEN_TTL, 0);
+    }
+
+    public void setAccessCode(String code) {
+        sharedPrefs.edit().putString(ACCESS_CODE, code).apply();
+    }
+
+    public String getAccessCode() {
+        return sharedPrefs.getString(ACCESS_CODE, null);
+    }
+
+    public void setAccessToken(String authToken) {
+        sharedPrefs.edit().putString(ACCESS_TOKEN, authToken).apply();
         Log.d("JWDEBUG", "token = " + authToken);
     }
 
-    public String getSpotifyAuthToken() {
-        return sharedPrefs.getString(SPOTIFY_AUTH_TOKEN, null);
+    public String getAccessToken() {
+        return sharedPrefs.getString(ACCESS_TOKEN, null);
     }
 
     public void setUserProfileImageUrl(String url) {
@@ -53,14 +82,20 @@ public class SharedUserPrefs {
         setUserDisplayName(userPrivate.display_name);
     }
 
+    public void saveAuthData(AuthResponse authResponse) {
+
+    }
+
     public void clearUserData() {
-        setSpotifyAuthToken(null);
+        setAccessToken(null);
         setUserProfileImageUrl(null);
         setUserDisplayName(null);
+        setAccessCode(null);
+        setRefreshToken(null);
     }
 
     public boolean isUserLoggedIn() {
-        String spotifyAuthToken = getSpotifyAuthToken();
+        String spotifyAuthToken = getAccessToken();
         return spotifyAuthToken != null && !spotifyAuthToken.equals("");
     }
 }

@@ -1,4 +1,4 @@
-package com.jerbotron_mac.spotishake.network.response;
+package com.jerbotron_mac.spotishake.network.responses;
 
 public class AuthResponse {
     String accessToken;
