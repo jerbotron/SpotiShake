@@ -9,6 +9,10 @@ import java.util.Map;
 import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.ArtistSimple;
+import kaaes.spotify.webapi.android.models.ErrorDetails;
+import kaaes.spotify.webapi.android.models.Pager;
+import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.TracksPager;
 import kaaes.spotify.webapi.android.models.UserPrivate;
 
@@ -31,8 +35,8 @@ public class SpotifyServiceWrapper {
         spotifyService.getMe(callback);
     }
 
-    public void saveTrackToSavedSongs(TrackData trackData) {
-        searchTrack(trackData, new SearchTrackCallback());
+    public void saveTrackToSpotify(TrackData trackData) {
+        searchTrack(trackData, new SearchTrackCallback(trackData));
     }
 
     public void searchTrack(TrackData trackData, SpotifyCallback<TracksPager> callback) {
@@ -53,9 +57,16 @@ public class SpotifyServiceWrapper {
         spotifyService.addToMySavedTracks(trackId, callback);
     }
 
+    public void getUser(SpotifyCallback<UserPrivate> callback) {
+        spotifyService.getMe(callback);
+    }
+
     private class SearchTrackCallback extends SpotifyCallback<TracksPager> {
 
-        private SearchTrackCallback() {
+        private TrackData trackData;
+
+        public SearchTrackCallback(TrackData trackData) {
+            this.trackData = trackData;
         }
 
         @Override
@@ -66,9 +77,28 @@ public class SpotifyServiceWrapper {
         @Override
         public void success(TracksPager tracksPager, Response response) {
             if (tracksPager != null) {
-                String trackId = tracksPager.tracks.items.get(0).id;
-                containsTrack(trackId, new ContainsTrackCallback(trackId));
+                for (Track track : tracksPager.tracks.items) {
+                    if (isSameTrack(track, trackData)) {
+                        containsTrack(track.id, new ContainsTrackCallback(track.id));
+                        return;
+                    }
+                }
             }
+            appUtils.showToast("Could not find song in Spotify", Toast.LENGTH_SHORT);
+        }
+
+        boolean isSameTrack(Track track, TrackData trackData) {
+            String longer = (track.name.length() > trackData.getTrack().length()) ? track.name : trackData.getTrack();
+            String shorter = (longer.equals(track.name)) ? trackData.getTrack() : track.name;
+            if (!longer.contains(shorter)) {
+                return false;
+            }
+            for (ArtistSimple artist : track.artists) {
+                if (artist.name.equals(trackData.getArtist())) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 

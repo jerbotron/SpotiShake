@@ -10,7 +10,7 @@ import java.util.Map;
 public class TrackData {
 
     private final static String ALBUM = "album";
-    private final static String ARTIST = "artist";
+    public final static String ARTIST = "artist";
     private final static String PLAYLIST = "playlist";
     private final static String TRACK = "track";
 
@@ -34,6 +34,10 @@ public class TrackData {
         if (artist != null) {
             dataMap.put(ARTIST, artist);
         }
+    }
+
+    public String getArtist() {
+        return dataMap.get(ARTIST).toString();
     }
 
     private void setPlaylist(String playlist) {

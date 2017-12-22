@@ -20,6 +20,8 @@ public class SharedUserPrefs {
     private static final String USER_PROFILE_IMAGE_URL = "user_profile_image_url";
     private static final String USER_DISPLAY_NAME  = "user_display_name";
 
+    private static final String AUTO_SAVE_PREF = "auto_save_pref";
+
     SharedPreferences sharedPrefs;
 
     public SharedUserPrefs(Context context) {
@@ -63,17 +65,26 @@ public class SharedUserPrefs {
         sharedPrefs.edit().putString(USER_PROFILE_IMAGE_URL, url).apply();
     }
 
-    public void setUserDisplayName(String displayName) {
-        sharedPrefs.edit().putString(USER_DISPLAY_NAME, displayName).apply();
-    }
-
     public String getUserProfileImageUrl() {
         return sharedPrefs.getString(USER_PROFILE_IMAGE_URL, null);
+    }
+
+    public void setUserDisplayName(String displayName) {
+        sharedPrefs.edit().putString(USER_DISPLAY_NAME, displayName).apply();
     }
 
     public String getUserDisplayName() {
         return sharedPrefs.getString(USER_DISPLAY_NAME, null);
     }
+
+    public void setAutoSavePref(boolean autoSave) {
+        sharedPrefs.edit().putBoolean(AUTO_SAVE_PREF, autoSave).apply();
+    }
+
+    public boolean getAutoSavePref() {
+        return sharedPrefs.getBoolean(AUTO_SAVE_PREF, true);
+    }
+
 
     public void saveUserInfo(UserPrivate userPrivate) {
         if (userPrivate.images != null && !userPrivate.images.isEmpty()) {

@@ -10,6 +10,9 @@ import com.jerbotron_mac.spotishake.activities.settings.dagger.DaggerSettingsCom
 import com.jerbotron_mac.spotishake.activities.settings.dagger.SettingsComponent;
 import com.jerbotron_mac.spotishake.activities.settings.fragments.MainPreferencesFragment;
 import com.jerbotron_mac.spotishake.application.SpotiShakeApplication;
+import com.jerbotron_mac.spotishake.utils.SharedUserPrefs;
+
+import javax.inject.Inject;
 
 import static com.jerbotron_mac.spotishake.shared.AppConstants.SETTINGS_PREF_REQUEST_CODE;
 
@@ -41,7 +44,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         MainPreferencesFragment mainPreferencesFragment = new MainPreferencesFragment();
         presenter = new SettingsPresenter(settingsComponent, mainPreferencesFragment);
-        mainPreferencesFragment.setPresenter(presenter);
+        mainPreferencesFragment.init(presenter);
 
         getFragmentManager().beginTransaction().replace(android.R.id.content, mainPreferencesFragment).commit();
     }

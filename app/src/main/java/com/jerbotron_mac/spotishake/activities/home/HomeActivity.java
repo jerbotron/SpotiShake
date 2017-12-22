@@ -23,11 +23,15 @@ import com.jerbotron_mac.spotishake.activities.settings.SettingsActivity;
 import com.jerbotron_mac.spotishake.application.SpotiShakeApplication;
 import com.jerbotron_mac.spotishake.gracenote.SystemEvents;
 import com.jerbotron_mac.spotishake.network.SpotifyAuthService;
+import com.jerbotron_mac.spotishake.network.SpotifyServiceWrapper;
+import com.jerbotron_mac.spotishake.network.callbacks.LoginCallback;
 import com.jerbotron_mac.spotishake.network.requests.AuthRequest;
 import com.jerbotron_mac.spotishake.network.responses.AuthResponse;
 import com.jerbotron_mac.spotishake.network.subscribers.AuthTokenSubscriber;
 import com.jerbotron_mac.spotishake.utils.AppUtils;
 import com.jerbotron_mac.spotishake.utils.SharedUserPrefs;
+import com.spotify.sdk.android.authentication.AuthenticationClient;
+import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 import javax.inject.Inject;
 
@@ -40,6 +44,7 @@ import static com.jerbotron_mac.spotishake.shared.AppConstants.APP_STRING;
 import static com.jerbotron_mac.spotishake.shared.AppConstants.GNSDK_CLIENT_ID;
 import static com.jerbotron_mac.spotishake.shared.AppConstants.GNSDK_CLIENT_TAG;
 import static com.jerbotron_mac.spotishake.shared.AppConstants.GNSDK_LICENSE_FILENAME;
+import static com.jerbotron_mac.spotishake.shared.AppConstants.SETTINGS_PREF_REQUEST_CODE;
 
 
 public class HomeActivity extends AppCompatActivity {
@@ -47,6 +52,7 @@ public class HomeActivity extends AppCompatActivity {
     @Inject AppUtils appUtils;
     @Inject SpotifyAuthService authService;
     @Inject SharedUserPrefs sharedUserPrefs;
+    @Inject SpotifyServiceWrapper spotifyServiceWrapper;
 
     // Gracenot SDK Objects
     private GnManager gnManager;
@@ -67,6 +73,11 @@ public class HomeActivity extends AppCompatActivity {
                 .build();
         homeComponent.inject(this);
 
+        if (sharedUserPrefs.isUserLoggedIn()) {
+            // make sure access token is valid
+            spotifyServiceWrapper.getUser(new LoginCallback(this, sharedUserPrefs));
+        }
+
         if (!appUtils.hasMicrophonePermission(this)) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, AUDIO_MICROPHONE_REQUEST_CODE);
         } else {
@@ -82,6 +93,16 @@ public class HomeActivity extends AppCompatActivity {
                 startup();
                 break;
             }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+
+        if (requestCode == SETTINGS_PREF_REQUEST_CODE) {
+            AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
+            sharedUserPrefs.setAccessToken(response.getAccessToken());
         }
     }
 

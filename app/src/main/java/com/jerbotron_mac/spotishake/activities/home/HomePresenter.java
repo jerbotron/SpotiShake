@@ -8,7 +8,6 @@ import com.gracenote.gnsdk.GnAlbum;
 import com.gracenote.gnsdk.GnAlbumIterator;
 import com.gracenote.gnsdk.GnDescriptor;
 import com.gracenote.gnsdk.GnException;
-import com.gracenote.gnsdk.GnImageSize;
 import com.gracenote.gnsdk.GnLanguage;
 import com.gracenote.gnsdk.GnLocale;
 import com.gracenote.gnsdk.GnLocaleGroup;
@@ -30,6 +29,7 @@ import com.jerbotron_mac.spotishake.gracenote.MusicIdStreamEvents;
 import com.jerbotron_mac.spotishake.network.SpotifyServiceWrapper;
 import com.jerbotron_mac.spotishake.network.TrackData;
 import com.jerbotron_mac.spotishake.utils.AppUtils;
+import com.jerbotron_mac.spotishake.utils.SharedUserPrefs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,10 +40,6 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.Observable;
-import kaaes.spotify.webapi.android.SpotifyCallback;
-import kaaes.spotify.webapi.android.SpotifyError;
-import kaaes.spotify.webapi.android.models.TracksPager;
-import retrofit.client.Response;
 
 import static com.jerbotron_mac.spotishake.shared.AppConstants.APP_STRING;
 
@@ -52,6 +48,7 @@ public class HomePresenter {
     @Inject DatabaseAdapter databaseAdapter;
     @Inject AppUtils appUtils;
     @Inject SpotifyServiceWrapper spotifyServiceWrapper;
+    @Inject SharedUserPrefs sharedUserPrefs;
 
     private HomeDisplayer displayer;
     private AlbumFragment albumFragment;
@@ -184,7 +181,9 @@ public class HomePresenter {
     }
 
     public void updateAlbum(GnResponseAlbums responseAlbums) {
-        addSongToSpotify(responseAlbums);
+        if (sharedUserPrefs.getAutoSavePref()) {
+            addSongToSpotify(responseAlbums);
+        }
         albumFragment.updateAlbum(responseAlbums);
         historyFragment.saveSong(responseAlbums);
     }
@@ -210,7 +209,7 @@ public class HomePresenter {
                 }
             }
 
-            spotifyServiceWrapper.saveTrackToSavedSongs(builder.build());
+            spotifyServiceWrapper.saveTrackToSpotify(builder.build());
         } catch (GnException e) {
             e.printStackTrace();
         }

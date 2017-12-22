@@ -46,10 +46,14 @@ public class SettingsPresenter {
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
      */
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
+    private Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
-            String stringValue = value.toString();
+
+            if (preference instanceof SwitchPreference) {
+                sharedUserPrefs.setAutoSavePref((boolean) value);
+            }
+
             return true;
         }
     };
@@ -63,7 +67,7 @@ public class SettingsPresenter {
      *
      * @see #sBindPreferenceSummaryToValueListener
      */
-    public static void bindPreferenceSummaryToValue(Preference preference) {
+    public void bindPreferenceSummaryToValue(Preference preference) {
         // Set the listener to watch for value changes.
         preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
 
@@ -80,10 +84,11 @@ public class SettingsPresenter {
 
     public void handleSpotifyLogin(int resultCode, Intent intent) {
         AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
+        sharedUserPrefs.setAccessToken(response.getAccessToken());
         switch (response.getType()) {
-            // Response was successful and contains auth token
-            case CODE:
-                onAuthenticationComplete(response);
+            // use CODE for refresh token/auth flow
+            case TOKEN:
+                onAuthenticationComplete();
                 break;
 
             // Auth flow returned an error
@@ -97,36 +102,50 @@ public class SettingsPresenter {
         }
     }
 
-    private void onAuthenticationComplete(AuthenticationResponse authResponse) {
-        sharedUserPrefs.setAccessCode(authResponse.getCode());
-        authService.getAuthTokens(AppConstants.GRANT_TYPE,
-                authResponse.getCode(),
-                AppConstants.REDIRECT_URI,
-                AppConstants.CLIENT_ID,
-                AppConstants.CLIENT_SECRET,
-                new Callback<AuthResponse>() {
+    private void onAuthenticationComplete() {
+        spotifyServiceWrapper.getUserProfile(new SpotifyCallback<UserPrivate>() {
             @Override
-            public void success(AuthResponse authResponse, Response response) {
-                sharedUserPrefs.saveAuthData(authResponse);
-                spotifyServiceWrapper.getUserProfile(new SpotifyCallback<UserPrivate>() {
-                    @Override
-                    public void failure(SpotifyError spotifyError) {
-                        spotifyError.printStackTrace();
-                    }
-
-                    @Override
-                    public void success(UserPrivate userPrivate, Response response) {
-                        sharedUserPrefs.saveUserInfo(userPrivate);
-                        mainPreferencesFragment.handleUserLogin();
-                    }
-                });
+            public void failure(SpotifyError spotifyError) {
+                spotifyError.printStackTrace();
             }
 
             @Override
-            public void failure(RetrofitError error) {
-                error.printStackTrace();
+            public void success(UserPrivate userPrivate, Response response) {
+                sharedUserPrefs.saveUserInfo(userPrivate);
+                mainPreferencesFragment.handleUserLogin();
             }
         });
+
+        // use code below for auth/refresh token flow
+//        sharedUserPrefs.setAccessCode(authResponse.getCode());
+//        authService.getAuthTokens(AppConstants.GRANT_TYPE,
+//                authResponse.getCode(),
+//                AppConstants.REDIRECT_URI,
+//                AppConstants.CLIENT_ID,
+//                AppConstants.CLIENT_SECRET,
+//                new Callback<AuthResponse>() {
+//            @Override
+//            public void success(AuthResponse authResponse, Response response) {
+//                sharedUserPrefs.saveAuthData(authResponse);
+//                spotifyServiceWrapper.getUserProfile(new SpotifyCallback<UserPrivate>() {
+//                    @Override
+//                    public void failure(SpotifyError spotifyError) {
+//                        spotifyError.printStackTrace();
+//                    }
+//
+//                    @Override
+//                    public void success(UserPrivate userPrivate, Response response) {
+//                        sharedUserPrefs.saveUserInfo(userPrivate);
+//                        mainPreferencesFragment.handleUserLogin();
+//                    }
+//                });
+//            }
+//
+//            @Override
+//            public void failure(RetrofitError error) {
+//                error.printStackTrace();
+//            }
+//        });
     }
 
     public void deleteHistory() {

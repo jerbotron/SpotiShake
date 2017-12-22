@@ -14,6 +14,7 @@ import android.widget.Button;
 import com.jerbotron_mac.spotishake.R;
 import com.jerbotron_mac.spotishake.activities.settings.SettingsPresenter;
 import com.jerbotron_mac.spotishake.shared.AppConstants;
+import com.jerbotron_mac.spotishake.utils.SharedUserPrefs;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -38,21 +39,13 @@ public class MainPreferencesFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.pref_main);
         setHasOptionsMenu(true);
 
-        SettingsPresenter.bindPreferenceSummaryToValue(findPreference("auto_save_songs"));
-
         loginPref = (LoginPreference) findPreference("account_login");
-        SwitchPreference autoSavePref = (SwitchPreference) findPreference("auto_save_songs");
-        Preference deleteHistoryPref = findPreference("delete_history");
-
         loginPref.init(this, presenter);
 
-        autoSavePref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                return false;
-            }
-        });
+        SwitchPreference autoSavePref = (SwitchPreference) findPreference("auto_save_songs");
+        presenter.bindPreferenceSummaryToValue(autoSavePref);
 
+        Preference deleteHistoryPref = findPreference("delete_history");
         deleteHistoryPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -72,15 +65,15 @@ public class MainPreferencesFragment extends PreferenceFragment {
         return super.onOptionsItemSelected(item);
     }
 
-    public void setPresenter(SettingsPresenter presenter) {
+    public void init(SettingsPresenter presenter) {
         this.presenter = presenter;
     }
 
     public void openLoginWindow() {
-        final AuthenticationRequest request = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.CODE, REDIRECT_URI)
+        // request AuthenticationResponse.Type.CODE to do refresh token/auth flow
+        final AuthenticationRequest request = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI)
                 .setScopes(AppConstants.SPOTIFY_CLIENT_SCOPES)
                 .build();
-
         AuthenticationClient.openLoginActivity(getActivity(), SETTINGS_PREF_REQUEST_CODE, request);
     }
 
