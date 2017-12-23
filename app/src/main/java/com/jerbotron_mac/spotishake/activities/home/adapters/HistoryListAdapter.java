@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -146,6 +148,15 @@ public class HistoryListAdapter extends CursorRecyclerAdapter<HistoryListAdapter
             artist.setText(cursor.getString(cursor.getColumnIndexOrThrow(TRACK_ARTIST)));
             album.setText(cursor.getString(cursor.getColumnIndexOrThrow(TRACK_ALBUM)));
 
+            cardBackground.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showSpotifyDeeplinkDialog(title.getText().toString(),
+                            artist.getText().toString(),
+                            album.getText().toString());
+                }
+            });
+
             cardBackground.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
@@ -163,6 +174,31 @@ public class HistoryListAdapter extends CursorRecyclerAdapter<HistoryListAdapter
 
         public RelativeLayout getCardBackground() {
             return cardBackground;
+        }
+
+        private void showSpotifyDeeplinkDialog(final String track, final String artist, final String album) {
+            final AlertDialog alertDialog = new AlertDialog.Builder(context).create();
+            View view = alertDialog.getLayoutInflater().inflate(R.layout.dialog_spotify_deeplink, null);
+
+            Button cancel = (Button) view.findViewById(R.id.cancel_action);
+            Button delete = (Button) view.findViewById(R.id.confirm_ok);
+
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    alertDialog.dismiss();
+                }
+            });
+
+            delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    presenter.openSpotifyDeeplink(track, artist, album);
+                }
+            });
+
+            alertDialog.setView(view);
+            alertDialog.show();
         }
     }
 }

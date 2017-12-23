@@ -12,6 +12,7 @@
     <!--Fragments-->
     <string name="album_empty_msg">Shake to ID a song!</string>
     <string name="history_toolbar_title">History</string>
+    <string name="open_spotify_deeplink">Open song in Spotify?</string>
 
     <!--Snack bar-->
     <string name="history_deleted">Deleted from history.</string>

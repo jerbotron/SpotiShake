@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/spotifyBlack"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="100dp">
+
+    <TextView
+        android:id="@+id/delete_history_confirmation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/open_spotify_deeplink"
+        android:textColor="@color/offWhite"
+        android:textSize="18sp"
+        android:padding="20dp"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/cancel_action"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:textColor="@color/spotifyGreen"
+            android:text="@android:string/cancel"/>
+
+        <Button
+            android:id="@+id/confirm_ok"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:textColor="@color/spotifyGreen"
+            android:text="@android:string/ok"/>
+
+    </LinearLayout>
+
+</LinearLayout>
