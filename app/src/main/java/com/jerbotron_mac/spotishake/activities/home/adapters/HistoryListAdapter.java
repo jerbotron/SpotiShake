@@ -1,8 +1,10 @@
 package com.jerbotron_mac.spotishake.activities.home.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,10 +12,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.gracenote.gnsdk.GnException;
 import com.gracenote.gnsdk.GnResponseAlbums;
 import com.jerbotron_mac.spotishake.R;
+import com.jerbotron_mac.spotishake.activities.home.HomePresenter;
 import com.jerbotron_mac.spotishake.data.DatabaseAdapter;
 import com.jerbotron_mac.spotishake.shared.MaterialColor;
 import com.jerbotron_mac.spotishake.utils.AppUtils;
@@ -32,10 +36,12 @@ import static com.jerbotron_mac.spotishake.data.SongInfo.TRACK_TITLE;
 public class HistoryListAdapter extends CursorRecyclerAdapter<HistoryListAdapter.SongViewHolder> {
 
     private Context context;
+    private HomePresenter presenter;
     private DatabaseAdapter databaseAdapter;
 
-    public HistoryListAdapter(Context context, DatabaseAdapter databaseAdapter) {
+    public HistoryListAdapter(Context context, HomePresenter presenter, DatabaseAdapter databaseAdapter) {
         super(databaseAdapter.getCursor());
+        this.presenter = presenter;
         this.context = context;
         this.databaseAdapter = databaseAdapter;
     }
@@ -124,7 +130,6 @@ public class HistoryListAdapter extends CursorRecyclerAdapter<HistoryListAdapter
         }
 
         private void bindCursor(Cursor cursor) {
-//            _id = cursor.getInt(cursor.getColumnIndexOrThrow(_ID));
             @MaterialColor.MaterialColors int colorId = cursor.getInt(cursor.getColumnIndexOrThrow(CARD_COLOR));
             cardForeground.setBackgroundColor(context.getResources().getColor(MaterialColor.getValue(colorId)));
             String url = AppUtils.prependHttp(cursor.getString(cursor.getColumnIndexOrThrow(COVER_ART_URL)));
@@ -140,6 +145,16 @@ public class HistoryListAdapter extends CursorRecyclerAdapter<HistoryListAdapter
             title.setText(cursor.getString(cursor.getColumnIndexOrThrow(TRACK_TITLE)));
             artist.setText(cursor.getString(cursor.getColumnIndexOrThrow(TRACK_ARTIST)));
             album.setText(cursor.getString(cursor.getColumnIndexOrThrow(TRACK_ALBUM)));
+
+            cardBackground.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    presenter.openSpotifyDeeplink(title.getText().toString(),
+                            artist.getText().toString(),
+                            album.getText().toString());
+                    return true;
+                }
+            });
         }
 
         public RelativeLayout getCardForeground() {

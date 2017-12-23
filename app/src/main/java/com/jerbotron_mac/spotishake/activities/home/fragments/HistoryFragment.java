@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import com.gracenote.gnsdk.GnResponseAlbums;
 import com.jerbotron_mac.spotishake.R;
 import com.jerbotron_mac.spotishake.activities.home.HomeActivity;
+import com.jerbotron_mac.spotishake.activities.home.HomePresenter;
 import com.jerbotron_mac.spotishake.activities.home.adapters.HistoryListAdapter;
 import com.jerbotron_mac.spotishake.activities.home.custom.RecyclerItemTouchHelper;
 import com.jerbotron_mac.spotishake.data.DatabaseAdapter;
@@ -28,6 +29,7 @@ public class HistoryFragment extends Fragment implements RecyclerItemTouchHelper
     private HistoryListAdapter historyListAdapter;
 
     private Context context;
+    private HomePresenter presenter;
     private DatabaseAdapter databaseAdapter;
     private ItemTouchHelper.SimpleCallback itemTouchHelperCallback;
 
@@ -75,7 +77,7 @@ public class HistoryFragment extends Fragment implements RecyclerItemTouchHelper
         this.context = context;
 
         if (historyListAdapter == null) {
-            historyListAdapter = new HistoryListAdapter(context, databaseAdapter);
+            historyListAdapter = new HistoryListAdapter(context, presenter, databaseAdapter);
         }
     }
 
@@ -84,7 +86,8 @@ public class HistoryFragment extends Fragment implements RecyclerItemTouchHelper
         super.onDetach();
     }
 
-    public void setDatabaseAdapter(DatabaseAdapter databaseAdapter) {
+    public void init(HomePresenter presenter, DatabaseAdapter databaseAdapter) {
+        this.presenter = presenter;
         this.databaseAdapter = databaseAdapter;
     }
 

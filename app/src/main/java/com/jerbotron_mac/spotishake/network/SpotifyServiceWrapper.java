@@ -2,6 +2,7 @@ package com.jerbotron_mac.spotishake.network;
 
 import android.widget.Toast;
 
+import com.jerbotron_mac.spotishake.network.subscribers.SpotifyUtils;
 import com.jerbotron_mac.spotishake.utils.AppUtils;
 
 import java.util.Map;
@@ -78,27 +79,13 @@ public class SpotifyServiceWrapper {
         public void success(TracksPager tracksPager, Response response) {
             if (tracksPager != null) {
                 for (Track track : tracksPager.tracks.items) {
-                    if (isSameTrack(track, trackData)) {
+                    if (SpotifyUtils.isSameTrack(track, trackData)) {
                         containsTrack(track.id, new ContainsTrackCallback(track.id));
                         return;
                     }
                 }
             }
             appUtils.showToast("Could not find song in Spotify", Toast.LENGTH_SHORT);
-        }
-
-        boolean isSameTrack(Track track, TrackData trackData) {
-            String longer = (track.name.length() > trackData.getTrack().length()) ? track.name : trackData.getTrack();
-            String shorter = (longer.equals(track.name)) ? trackData.getTrack() : track.name;
-            if (!longer.contains(shorter)) {
-                return false;
-            }
-            for (ArtistSimple artist : track.artists) {
-                if (artist.name.equals(trackData.getArtist())) {
-                    return true;
-                }
-            }
-            return false;
         }
     }
 

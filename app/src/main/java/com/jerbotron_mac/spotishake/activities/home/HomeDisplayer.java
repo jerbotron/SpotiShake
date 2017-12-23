@@ -1,5 +1,6 @@
 package com.jerbotron_mac.spotishake.activities.home;
 
+import android.content.Intent;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.MyBottomNavigationView;
@@ -140,5 +141,9 @@ public class HomeDisplayer {
 
     public void setPresenter(HomePresenter presenter) {
         this.presenter = presenter;
+    }
+
+    public void startActivity(Intent intent) {
+        activity.startActivity(intent);
     }
 }

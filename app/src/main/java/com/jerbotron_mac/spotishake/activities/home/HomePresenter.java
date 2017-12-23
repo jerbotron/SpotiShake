@@ -1,5 +1,7 @@
 package com.jerbotron_mac.spotishake.activities.home;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.IntDef;
 import android.util.Log;
 import android.widget.Toast;
@@ -28,6 +30,7 @@ import com.jerbotron_mac.spotishake.data.DatabaseAdapter;
 import com.jerbotron_mac.spotishake.gracenote.MusicIdStreamEvents;
 import com.jerbotron_mac.spotishake.network.SpotifyServiceWrapper;
 import com.jerbotron_mac.spotishake.network.TrackData;
+import com.jerbotron_mac.spotishake.network.subscribers.SpotifyUtils;
 import com.jerbotron_mac.spotishake.utils.AppUtils;
 import com.jerbotron_mac.spotishake.utils.SharedUserPrefs;
 
@@ -40,6 +43,11 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.Observable;
+import kaaes.spotify.webapi.android.SpotifyCallback;
+import kaaes.spotify.webapi.android.SpotifyError;
+import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.TracksPager;
+import retrofit.client.Response;
 
 import static com.jerbotron_mac.spotishake.shared.AppConstants.APP_STRING;
 
@@ -132,7 +140,7 @@ public class HomePresenter {
         detectFragment = new DetectFragment();
         detectFragment.setPresenter(this);
         historyFragment = new HistoryFragment();
-        historyFragment.setDatabaseAdapter(databaseAdapter);
+        historyFragment.init(this, databaseAdapter);
     }
 
     private void initGnLocale() {
@@ -188,7 +196,7 @@ public class HomePresenter {
         historyFragment.saveSong(responseAlbums);
     }
 
-    public void addSongToSpotify(GnResponseAlbums gnAlbums) {
+    private void addSongToSpotify(GnResponseAlbums gnAlbums) {
         GnAlbumIterator iter = gnAlbums.albums().getIterator();
         try {
             TrackData.Builder builder = new TrackData.Builder();
@@ -213,6 +221,36 @@ public class HomePresenter {
         } catch (GnException e) {
             e.printStackTrace();
         }
+    }
+
+    public void openSpotifyDeeplink(String track, String artist, String album) {
+        final TrackData trackData = new TrackData.Builder().setTrack(track)
+                .setArtist(artist)
+                .setAlbum(album)
+                .build();
+
+        spotifyServiceWrapper.searchTrack(trackData, new SpotifyCallback<TracksPager>() {
+            @Override
+            public void failure(SpotifyError spotifyError) {
+                spotifyError.printStackTrace();
+                appUtils.showToast("Could not open song in Spotify", Toast.LENGTH_SHORT);
+            }
+
+            @Override
+            public void success(TracksPager tracksPager, Response response) {
+                if (tracksPager != null) {
+                    for (Track track : tracksPager.tracks.items) {
+                        if (SpotifyUtils.isSameTrack(track, trackData)) {
+                            Uri deeplink = Uri.parse("spotify:track:" + track.id);
+                            Intent intent = new Intent(Intent.ACTION_VIEW, deeplink);
+                            displayer.startActivity(intent);
+                            return;
+                        }
+                    }
+                }
+                appUtils.showToast("Could not open song in Spotify", Toast.LENGTH_SHORT);
+            }
+        });
     }
 
     public Consumer<Integer> getRetrySubscriber() {
