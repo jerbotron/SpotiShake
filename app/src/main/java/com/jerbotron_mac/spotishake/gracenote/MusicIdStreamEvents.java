@@ -63,7 +63,7 @@ public class MusicIdStreamEvents implements IGnMusicIdStreamEvents {
     public void musicIdStreamAlbumResult(GnResponseAlbums result, IGnCancellable canceller ) {
         if (result.resultCount() > 0) {
             retrySubject.onNext(IdentifyState.IDENTIFIED);
-            presenter.updateAlbum(result);
+            presenter.onHandleSongResults(result);
             retryCount = 0;
         } else {
 //            if (retryCount < NUM_OF_RETRIES) {

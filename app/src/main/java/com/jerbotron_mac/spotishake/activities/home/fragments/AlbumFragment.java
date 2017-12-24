@@ -11,15 +11,10 @@ import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.gracenote.gnsdk.GnAlbum;
-import com.gracenote.gnsdk.GnAlbumIterator;
-import com.gracenote.gnsdk.GnDataLevel;
-import com.gracenote.gnsdk.GnException;
-import com.gracenote.gnsdk.GnImageSize;
-import com.gracenote.gnsdk.GnResponseAlbums;
 import com.jerbotron_mac.spotishake.R;
 import com.jerbotron_mac.spotishake.activities.home.HomePresenter;
 import com.jerbotron_mac.spotishake.activities.home.HomeDisplayer;
+import com.jerbotron_mac.spotishake.data.SongInfo;
 import com.jerbotron_mac.spotishake.utils.AppUtils;
 import com.squareup.picasso.Picasso;
 
@@ -37,11 +32,7 @@ public class AlbumFragment extends Fragment {
     private TextView emptyText;
 
     private boolean hasHistory = false;
-    private String coverArtUrl;
-    private String track;
-    private String album;
-    private String artist;
-    private String genre;
+    private SongInfo cachecSongInfo;
 
     public AlbumFragment() {
         // Required empty public constructor
@@ -60,7 +51,7 @@ public class AlbumFragment extends Fragment {
         emptyText = (TextView) view.findViewById(R.id.empty_text);
 
         if (hasHistory) {
-            updateAlbumUI(coverArtUrl, track, album, artist, genre);
+            updateAlbumUI();
         }
 
         return view;
@@ -100,81 +91,47 @@ public class AlbumFragment extends Fragment {
     }
 
 
-    public void updateAlbum(GnResponseAlbums results) {
+    public void updateAlbum(SongInfo songInfo) {
         hasHistory = true;
-        try {
-            GnAlbumIterator iter = results.albums().getIterator();
-            GnAlbum gnAlbum = null;
-            while (iter.hasNext()) {
-                gnAlbum = iter.next();
-            }
-
-            UpdateAlbumRunnable updateAlbumRunnable = new UpdateAlbumRunnable(gnAlbum);
-            getActivity().runOnUiThread(updateAlbumRunnable);
-
-        } catch (GnException e) {
-            e.printStackTrace();
-        }
+        UpdateAlbumRunnable updateAlbumRunnable = new UpdateAlbumRunnable(songInfo);
+        getActivity().runOnUiThread(updateAlbumRunnable);
     }
 
-    private void updateAlbumUI(String coverArtUrl,
-                               String track,
-                               String album,
-                               String artist,
-                               String genre) {
+    private void updateAlbumUI() {
         toggleAlbumDisplay();
-        if (coverArt != null && songTitle != null && songArtist != null && songGenre != null) {
-            String url = AppUtils.prependHttp(coverArtUrl);
+        if (cachecSongInfo != null) {
+            String url = AppUtils.prependHttp(cachecSongInfo.getCoverArtUrl());
             Picasso.with(getContext())
                     .load(url)
                     .placeholder(R.drawable.spotify_logo)
                     .into(coverArt);
-            songTitle.setText(track);
-            songAlbum.setText(album);
-            songArtist.setText(artist);
-            songGenre.setText(genre);
+            songTitle.setText(cachecSongInfo.getTitle());
+            songAlbum.setText(cachecSongInfo.getAlbum());
+            songArtist.setText(cachecSongInfo.getArtist());
+            songGenre.setText(cachecSongInfo.getGenre());
         }
     }
 
-    private void cacheAlbumInfo(String coverArtUrl,
-                                String track,
-                                String album,
-                                String artist,
-                                String genre) {
-        this.coverArtUrl = coverArtUrl;
-        this.track = track;
-        this.album = album;
-        this.artist = artist;
-        this.genre = genre;
+    private void setCachecSongInfo(SongInfo songInfo) {
+        this.cachecSongInfo = songInfo;
     }
 
     private class UpdateAlbumRunnable implements Runnable {
 
-        private GnAlbum gnAlbum;
+        private SongInfo songInfo;
 
-        private UpdateAlbumRunnable(GnAlbum gnAlbum) {
-            this.gnAlbum = gnAlbum;
+        private UpdateAlbumRunnable(SongInfo songInfo) {
+            this.songInfo = songInfo;
         }
 
         @Override
         public void run() {
-            if (gnAlbum != null) {
-                displayer.setCurrentItem(HomePresenter.FragmentEnum.ALBUM);
+            displayer.setCurrentItem(HomePresenter.FragmentEnum.ALBUM);
 
-                String trackArtist = gnAlbum.trackMatched().artist().name().display();
-                if (trackArtist == null || trackArtist.isEmpty()) {
-                    //use album artist if track artist not available
-                    trackArtist = gnAlbum.artist().name().display();
-                }
+            setCachecSongInfo(songInfo);
+            updateAlbumUI();
 
-                cacheAlbumInfo(gnAlbum.coverArt().asset(GnImageSize.kImageSizeLarge).url(),
-                        gnAlbum.trackMatched().title().display(),
-                        gnAlbum.title().display(),
-                        trackArtist,
-                        gnAlbum.trackMatched().genre(GnDataLevel.kDataLevel_1));
-                updateAlbumUI(coverArtUrl, track, album, artist, genre);
-                vibrator.vibrate(750);
-            }
+            vibrator.vibrate(750);
         }
     }
 }

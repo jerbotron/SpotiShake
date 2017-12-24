@@ -53,4 +53,8 @@ public class AppUtils {
         }
         return prefix.concat(url);
     }
+
+    public static boolean isStringEmpty(String s) {
+        return s == null || s.isEmpty() || s.equals("");
+    }
 }

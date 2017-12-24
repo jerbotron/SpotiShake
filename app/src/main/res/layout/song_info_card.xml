@@ -29,7 +29,7 @@
         android:id="@+id/card_foreground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/material_grey"
+        android:background="@color/spotifyBlack"
         android:layout_margin="@dimen/cardview_default_radius">
 
         <ImageView
@@ -82,6 +82,16 @@
             android:ellipsize="end"
             android:paddingStart="0dp"
             android:paddingEnd="10dp"/>
+
+        <ImageView
+            android:id="@+id/song_card_checked"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:padding="25dp"
+            android:visibility="gone"
+            android:src="@drawable/ic_song_added" />
 
     </RelativeLayout>
 

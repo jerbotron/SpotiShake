@@ -13,9 +13,11 @@ import static android.provider.BaseColumns._ID;
 import static com.jerbotron_mac.spotishake.data.DatabaseHelper.TB_SONG_HISTORY;
 import static com.jerbotron_mac.spotishake.data.SongInfo.CARD_COLOR;
 import static com.jerbotron_mac.spotishake.data.SongInfo.COVER_ART_URL;
+import static com.jerbotron_mac.spotishake.data.SongInfo.SPOTIFY_ID;
 import static com.jerbotron_mac.spotishake.data.SongInfo.TIMESTAMP_MS;
 import static com.jerbotron_mac.spotishake.data.SongInfo.TRACK_ALBUM;
 import static com.jerbotron_mac.spotishake.data.SongInfo.TRACK_ARTIST;
+import static com.jerbotron_mac.spotishake.data.SongInfo.TRACK_GENRE;
 import static com.jerbotron_mac.spotishake.data.SongInfo.TRACK_TITLE;
 
 
@@ -45,9 +47,7 @@ public final class DatabaseAdapter {
 		databaseHelper.close();
 	}
 
-    public void insertChanges(GnResponseAlbums gnAlbums) throws GnException {
-
-        SongInfo songInfo = new SongInfo(gnAlbums);
+    public void insertChanges(SongInfo songInfo) {
 
         if (doesRowExist(songInfo)) {
             Log.d(getClass().getName(), "song already exists in table");
@@ -93,7 +93,9 @@ public final class DatabaseAdapter {
                     TRACK_TITLE,
                     TRACK_ALBUM,
                     TRACK_ARTIST,
+                    TRACK_GENRE,
                     COVER_ART_URL,
+                    SPOTIFY_ID,
                     CARD_COLOR,
                     TIMESTAMP_MS
             };
@@ -124,21 +126,26 @@ public final class DatabaseAdapter {
                     TRACK_TITLE,
                     TRACK_ALBUM,
                     TRACK_ARTIST,
+                    TRACK_GENRE,
                     COVER_ART_URL,
+                    SPOTIFY_ID,
                     CARD_COLOR
             };
 
-            String whereClause =
-                    TRACK_TITLE + " = ? AND " +
+            String whereClause = TRACK_TITLE + " = ? AND " +
                     TRACK_ALBUM + " = ? AND " +
                     TRACK_ARTIST + " = ? AND " +
-                    COVER_ART_URL + " = ?";
+                    TRACK_GENRE + " = ? AND " +
+                    COVER_ART_URL + " = ? AND " +
+                    SPOTIFY_ID + " = ?";
 
             String[] whereArgs = new String[] {
                     songInfo.getTitle(),
                     songInfo.getAlbum(),
                     songInfo.getArtist(),
-                    songInfo.getCoverArtUrl()
+                    songInfo.getGenre(),
+                    songInfo.getCoverArtUrl(),
+                    songInfo.getSpotifyId()
             };
 
             String orderBy = TIMESTAMP_MS + " ASC";

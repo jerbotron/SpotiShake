@@ -6,8 +6,6 @@ import android.support.annotation.IntDef;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.gracenote.gnsdk.GnAlbum;
-import com.gracenote.gnsdk.GnAlbumIterator;
 import com.gracenote.gnsdk.GnDescriptor;
 import com.gracenote.gnsdk.GnException;
 import com.gracenote.gnsdk.GnLanguage;
@@ -27,9 +25,9 @@ import com.jerbotron_mac.spotishake.activities.home.fragments.AlbumFragment;
 import com.jerbotron_mac.spotishake.activities.home.fragments.DetectFragment;
 import com.jerbotron_mac.spotishake.activities.home.fragments.HistoryFragment;
 import com.jerbotron_mac.spotishake.data.DatabaseAdapter;
+import com.jerbotron_mac.spotishake.data.SongInfo;
 import com.jerbotron_mac.spotishake.gracenote.MusicIdStreamEvents;
 import com.jerbotron_mac.spotishake.network.SpotifyServiceWrapper;
-import com.jerbotron_mac.spotishake.network.TrackData;
 import com.jerbotron_mac.spotishake.network.subscribers.SpotifyUtils;
 import com.jerbotron_mac.spotishake.utils.AppUtils;
 import com.jerbotron_mac.spotishake.utils.SharedUserPrefs;
@@ -174,6 +172,10 @@ public class HomePresenter {
                 });
     }
 
+    public boolean isUserLoggedIn() {
+        return sharedUserPrefs.isUserLoggedIn();
+    }
+
     public void setAmplitudePercent(int amplitudePercent) {
         if (displayer.getCurrentItem() == FragmentEnum.DETECT) {
             detectFragment.setAmplitudePercent(amplitudePercent);
@@ -188,69 +190,28 @@ public class HomePresenter {
         }
     }
 
-    public void updateAlbum(GnResponseAlbums responseAlbums) {
-        if (sharedUserPrefs.getAutoSavePref()) {
-            addSongToSpotify(responseAlbums);
-        }
-        albumFragment.updateAlbum(responseAlbums);
-        historyFragment.saveSong(responseAlbums);
-    }
-
-    private void addSongToSpotify(GnResponseAlbums gnAlbums) {
-        GnAlbumIterator iter = gnAlbums.albums().getIterator();
-        try {
-            TrackData.Builder builder = new TrackData.Builder();
-            while (iter.hasNext()) {
-                GnAlbum album = iter.next();
-                if (album.title().display() != null) {
-                    builder.setAlbum(album.title().display());
-                }
-
-                if (album.trackMatched() != null) {
-                    String trackArtist = album.trackMatched().artist().name().display();
-                    if (trackArtist == null || trackArtist.isEmpty()) {
-                        //use album artist if track artist not available
-                        trackArtist = album.artist().name().display();
-                    }
-                    builder.setArtist(trackArtist);
-                    builder.setTrack(album.trackMatched().title().display());
-                }
-            }
-
-            spotifyServiceWrapper.saveTrackToSpotify(builder.build());
-        } catch (GnException e) {
-            e.printStackTrace();
+    public void onHandleSongResults(GnResponseAlbums responseAlbums) {
+        final SongInfo songInfo = new SongInfo(responseAlbums);
+        albumFragment.updateAlbum(songInfo);
+        if (sharedUserPrefs.isUserLoggedIn()) {
+            spotifyServiceWrapper.searchTrack(songInfo, new SearchTrackCallback(songInfo));
+        } else {
+            historyFragment.saveSong(songInfo);
         }
     }
 
-    public void openSpotifyDeeplink(String track, String artist, String album) {
-        final TrackData trackData = new TrackData.Builder().setTrack(track)
-                .setArtist(artist)
-                .setAlbum(album)
-                .build();
+    public void openSpotifyDeeplink(String spotifySongId) {
+        if (AppUtils.isStringEmpty(spotifySongId)) {
+            appUtils.showToast("Could not open song in Spotify", Toast.LENGTH_SHORT);
+        } else {
+            Uri deeplink = Uri.parse("spotify:track:" + spotifySongId);
+            Intent intent = new Intent(Intent.ACTION_VIEW, deeplink);
+            displayer.startActivity(intent);
+        }
+    }
 
-        spotifyServiceWrapper.searchTrack(trackData, new SpotifyCallback<TracksPager>() {
-            @Override
-            public void failure(SpotifyError spotifyError) {
-                spotifyError.printStackTrace();
-                appUtils.showToast("Could not open song in Spotify", Toast.LENGTH_SHORT);
-            }
-
-            @Override
-            public void success(TracksPager tracksPager, Response response) {
-                if (tracksPager != null) {
-                    for (Track track : tracksPager.tracks.items) {
-                        if (SpotifyUtils.isSameTrack(track, trackData)) {
-                            Uri deeplink = Uri.parse("spotify:track:" + track.id);
-                            Intent intent = new Intent(Intent.ACTION_VIEW, deeplink);
-                            displayer.startActivity(intent);
-                            return;
-                        }
-                    }
-                }
-                appUtils.showToast("Could not open song in Spotify", Toast.LENGTH_SHORT);
-            }
-        });
+    public void checkIfSongSavedInSpotify(String trackId, SpotifyCallback<boolean[]> callback) {
+        spotifyServiceWrapper.containsTrack(trackId, callback);
     }
 
     public Consumer<Integer> getRetrySubscriber() {
@@ -289,6 +250,40 @@ public class HomePresenter {
                 Log.e(APP_STRING, e.errorCode() + ", " + e.errorDescription() + ", " + e.errorModule());
                 e.printStackTrace();
             }
+        }
+    }
+
+    private class SearchTrackCallback extends SpotifyCallback<TracksPager> {
+        private SongInfo songInfo;
+
+        SearchTrackCallback(SongInfo songInfo) {
+            this.songInfo = songInfo;
+        }
+
+        @Override
+        public void failure(SpotifyError spotifyError) {
+            spotifyError.printStackTrace();
+            historyFragment.saveSong(songInfo);
+            if (sharedUserPrefs.getAutoSavePref()) {
+                appUtils.showToast("Could not find song in Spotify", Toast.LENGTH_SHORT);
+            }
+        }
+
+        @Override
+        public void success(TracksPager tracksPager, Response response) {
+            if (tracksPager != null) {
+                for (Track track : tracksPager.tracks.items) {
+                    if (SpotifyUtils.isSameTrack(track, songInfo)) {
+                        songInfo.setSpotifyId(track.id);
+                        if (sharedUserPrefs.getAutoSavePref()) {
+                            spotifyServiceWrapper.saveTrackIfApplicable(track.id);
+                        }
+                        return;
+                    }
+                }
+            }
+            historyFragment.saveSong(songInfo);
+            appUtils.showToast("Could not find song in Spotify", Toast.LENGTH_SHORT);
         }
     }
 

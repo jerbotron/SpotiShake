@@ -14,13 +14,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import com.gracenote.gnsdk.GnResponseAlbums;
 import com.jerbotron_mac.spotishake.R;
 import com.jerbotron_mac.spotishake.activities.home.HomeActivity;
 import com.jerbotron_mac.spotishake.activities.home.HomePresenter;
 import com.jerbotron_mac.spotishake.activities.home.adapters.HistoryListAdapter;
 import com.jerbotron_mac.spotishake.activities.home.custom.RecyclerItemTouchHelper;
 import com.jerbotron_mac.spotishake.data.DatabaseAdapter;
+import com.jerbotron_mac.spotishake.data.SongInfo;
 
 public class HistoryFragment extends Fragment implements RecyclerItemTouchHelper.RecyclerItemTouchHelperListener {
 
@@ -130,7 +130,7 @@ public class HistoryFragment extends Fragment implements RecyclerItemTouchHelper
         }
     }
 
-    public void saveSong(GnResponseAlbums responseAlbums) {
-        historyListAdapter.saveSongToDb(responseAlbums);
+    public void saveSong(SongInfo songInfo) {
+        historyListAdapter.saveSongToDb(songInfo);
     }
 }

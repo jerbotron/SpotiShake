@@ -22,7 +22,7 @@ public class SharedUserPrefs {
 
     private static final String AUTO_SAVE_PREF = "auto_save_pref";
 
-    SharedPreferences sharedPrefs;
+    private SharedPreferences sharedPrefs;
 
     public SharedUserPrefs(Context context) {
         this.sharedPrefs = context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
