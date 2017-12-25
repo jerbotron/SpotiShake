@@ -54,7 +54,6 @@ public class SharedUserPrefs {
 
     public void setAccessToken(String authToken) {
         sharedPrefs.edit().putString(ACCESS_TOKEN, authToken).apply();
-        Log.d("JWDEBUG", "token = " + authToken);
     }
 
     public String getAccessToken() {

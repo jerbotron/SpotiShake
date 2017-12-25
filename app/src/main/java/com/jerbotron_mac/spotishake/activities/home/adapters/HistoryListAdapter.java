@@ -78,6 +78,10 @@ public class HistoryListAdapter extends CursorRecyclerAdapter<HistoryListAdapter
         changeCursor(databaseAdapter.getCursor());
     }
 
+    public void refreshAdapter() {
+        notifyDataSetChanged();
+    }
+
     private class InsertRowSubscriber extends DisposableObserver<SongInfo> {
         @Override
         public void onNext(SongInfo songInfo) {
@@ -121,6 +125,8 @@ public class HistoryListAdapter extends CursorRecyclerAdapter<HistoryListAdapter
         private TextView artist;
         private ImageView songChecked;
 
+        private volatile String spotifySongId;
+
         private SongViewHolder(View view) {
             super(view);
             cardForeground = (RelativeLayout) view.findViewById(R.id.card_foreground);
@@ -152,7 +158,7 @@ public class HistoryListAdapter extends CursorRecyclerAdapter<HistoryListAdapter
             artist.setText(cursor.getString(cursor.getColumnIndexOrThrow(TRACK_ARTIST)));
             album.setText(cursor.getString(cursor.getColumnIndexOrThrow(TRACK_ALBUM)));
 
-            final String spotifySongId = cursor.getString(cursor.getColumnIndexOrThrow(SPOTIFY_ID));
+            spotifySongId = cursor.getString(cursor.getColumnIndexOrThrow(SPOTIFY_ID));
 
             if (presenter.isUserLoggedIn()) {
                 if (AppUtils.isStringEmpty(spotifySongId)) {
@@ -235,6 +241,7 @@ public class HistoryListAdapter extends CursorRecyclerAdapter<HistoryListAdapter
                 if (tracksPager != null) {
                     for (Track track : tracksPager.tracks.items) {
                         if (SpotifyUtils.isSameTrack(track, songInfo)) {
+                            spotifySongId = track.id;
                             databaseAdapter.updateSpotifySongId(cursor.getInt(cursor.getColumnIndexOrThrow(_ID)), track.id);
                             presenter.checkIfSongSavedInSpotify(track.id, new SongCheckedSubscriber());
                             return;

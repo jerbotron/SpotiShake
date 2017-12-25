@@ -98,6 +98,7 @@ public class LoginPreference extends Preference {
                     .placeholder(R.drawable.default_profile_image)
                     .into(profileImage);
         }
-        displayName.setText(sharedUserPrefs.getUserDisplayName());
+        displayName.setText("DJ Khaled");
+//        displayName.setText(sharedUserPrefs.getUserDisplayName());
     }
 }

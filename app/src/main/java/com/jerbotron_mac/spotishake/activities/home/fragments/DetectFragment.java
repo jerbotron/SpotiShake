@@ -5,6 +5,7 @@ import android.content.Context;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import com.jerbotron_mac.spotishake.activities.home.HomePresenter;
 import com.jerbotron_mac.spotishake.activities.home.custom.ShakeDetector;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.subjects.PublishSubject;
 
@@ -26,7 +28,7 @@ public class DetectFragment extends Fragment {
     private View loadingIndicator;
 
     private static final float zeroScaleFactor = 1.0f;
-    private static final float maxScaleFactor = 3.0f;
+    private static final float maxScaleFactor = 5.0f;
     private volatile float lastScaleFactor = zeroScaleFactor;
     private int currentPercent = 100;
     private volatile boolean isRunning = false;
@@ -38,15 +40,14 @@ public class DetectFragment extends Fragment {
     private ShakeDetector shakeDetector;
 
     private PublishSubject<Integer> amplitudeSubject;
-    private Consumer<Integer> amplitudeSubscriber;
+    private Disposable animatonSubscption;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         amplitudeSubject = PublishSubject.create();
-        amplitudeSubscriber = new SetDisplayAmplitudeSubscriber();
-        amplitudeSubject.observeOn(AndroidSchedulers.mainThread())
-                .subscribe(amplitudeSubscriber);
+        animatonSubscption = amplitudeSubject.observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new SetDisplayAmplitudeSubscriber());
     }
 
     @Override
@@ -80,6 +81,12 @@ public class DetectFragment extends Fragment {
     public void onPause() {
         super.onPause();
         isRunning = false;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        animatonSubscption.dispose();
     }
 
     private void initShakeSensor(Context context) {

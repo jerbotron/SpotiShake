@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.jerbotron_mac.spotishake.activities.home.fragments.HistoryFragment"
     android:id="@+id/fragment_history_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.jerbotron_mac.spotishake.activities.home.fragments.HistoryFragment"
-    android:orientation="vertical"
     android:background="@color/spotifyBlack">
 
     <android.support.v7.widget.Toolbar
@@ -13,11 +12,32 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/spotifyDarkGray"
-        android:theme="@style/MyToolBarTheme"/>
+        android:theme="@style/MyToolBarTheme"
+        android:layout_alignParentTop="true"/>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/song_history_recycler_view"
+    <TextView
+        android:id="@+id/no_history"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/history_toolbar"
+        android:text="@string/no_history_text"
+        android:textColor="@color/offWhite"
+        android:textSize="16sp"
+        android:layout_centerHorizontal="true"
+        android:paddingTop="15dp" />
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/history_swipe_refresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_below="@id/history_toolbar">
 
-</LinearLayout>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/song_history_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/history_toolbar"/>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+</RelativeLayout>

@@ -201,7 +201,10 @@ public class HomePresenter {
     }
 
     public void openSpotifyDeeplink(String spotifySongId) {
-        if (AppUtils.isStringEmpty(spotifySongId)) {
+        if (!isUserLoggedIn()) {
+            appUtils.showToast("Login to open song in Spotify", Toast.LENGTH_SHORT);
+        }
+        else if (AppUtils.isStringEmpty(spotifySongId)) {
             appUtils.showToast("Could not open song in Spotify", Toast.LENGTH_SHORT);
         } else {
             Uri deeplink = Uri.parse("spotify:track:" + spotifySongId);
@@ -232,7 +235,7 @@ public class HomePresenter {
                         break;
                     }
                     case MusicIdStreamEvents.IdentifyState.NOT_FOUND: {
-                        appUtils.showToast("Could not ID song, please try again.", Toast.LENGTH_SHORT);
+                        appUtils.showToast("Could not find song, please try again!", Toast.LENGTH_SHORT);
                         detectFragment.handleSongNotFound();
                         break;
                     }
