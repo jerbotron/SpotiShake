@@ -1,13 +1,10 @@
 package com.jerbotron_mac.spotishake.activities.home.adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +17,7 @@ import com.jerbotron_mac.spotishake.R;
 import com.jerbotron_mac.spotishake.activities.home.HomePresenter;
 import com.jerbotron_mac.spotishake.data.DatabaseAdapter;
 import com.jerbotron_mac.spotishake.data.SongInfo;
+import com.jerbotron_mac.spotishake.network.subscribers.SpotifyUtils;
 import com.jerbotron_mac.spotishake.shared.MaterialColor;
 import com.jerbotron_mac.spotishake.utils.AppUtils;
 import com.squareup.picasso.Picasso;
@@ -28,6 +26,8 @@ import io.reactivex.Observable;
 import io.reactivex.observers.DisposableObserver;
 import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.SpotifyError;
+import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.TracksPager;
 import retrofit.client.Response;
 
 import static android.provider.BaseColumns._ID;
@@ -130,8 +130,6 @@ public class HistoryListAdapter extends CursorRecyclerAdapter<HistoryListAdapter
             album = (TextView) view.findViewById(R.id.song_card_album);
             artist = (TextView) view.findViewById(R.id.song_card_artist);
             songChecked = (ImageView) view.findViewById(R.id.song_card_checked);
-
-            Log.d("JWDEBUG", "got to here");
         }
 
         private void bindCursor(final Cursor cursor) {
@@ -146,6 +144,9 @@ public class HistoryListAdapter extends CursorRecyclerAdapter<HistoryListAdapter
                 title.setTextColor(Color.BLACK);
                 artist.setTextColor(Color.BLACK);
                 album.setTextColor(Color.BLACK);
+                songChecked.setImageResource(R.drawable.ic_song_added_black);
+            } else {
+                songChecked.setImageResource(R.drawable.ic_song_added_white);
             }
             title.setText(cursor.getString(cursor.getColumnIndexOrThrow(TRACK_TITLE)));
             artist.setText(cursor.getString(cursor.getColumnIndexOrThrow(TRACK_ARTIST)));
@@ -154,21 +155,16 @@ public class HistoryListAdapter extends CursorRecyclerAdapter<HistoryListAdapter
             final String spotifySongId = cursor.getString(cursor.getColumnIndexOrThrow(SPOTIFY_ID));
 
             if (presenter.isUserLoggedIn()) {
-                presenter.checkIfSongSavedInSpotify(spotifySongId, new SpotifyCallback<boolean[]>() {
-                    @Override
-                    public void success(boolean[] booleans, Response response) {
-                        if (booleans.length > 0 && booleans[0]) {
-                            songChecked.setVisibility(View.VISIBLE);
-                        } else {
-                            songChecked.setVisibility(View.GONE);
-                        }
-                    }
-
-                    @Override
-                    public void failure(SpotifyError spotifyError) {
-                        spotifyError.printStackTrace();
-                    }
-                });
+                if (AppUtils.isStringEmpty(spotifySongId)) {
+                    final SongInfo songInfo =  new SongInfo(title.getText().toString(),
+                                                            artist.getText().toString(),
+                                                            album.getText().toString());
+                    presenter.searchTrackInSpotify(songInfo, new SearchTrackCallback(songInfo));
+                } else {
+                    presenter.checkIfSongSavedInSpotify(spotifySongId, new SongCheckedSubscriber());
+                }
+            } else {
+                songChecked.setVisibility(View.GONE);
             }
 
             cardBackground.setOnClickListener(new View.OnClickListener() {
@@ -218,6 +214,52 @@ public class HistoryListAdapter extends CursorRecyclerAdapter<HistoryListAdapter
 
             alertDialog.setView(view);
             alertDialog.show();
+        }
+
+        private class SearchTrackCallback extends SpotifyCallback<TracksPager> {
+
+            private SongInfo songInfo;
+
+            SearchTrackCallback(SongInfo songInfo) {
+                this.songInfo = songInfo;
+            }
+
+            @Override
+            public void failure(SpotifyError spotifyError) {
+                spotifyError.printStackTrace();
+                songChecked.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void success(TracksPager tracksPager, Response response) {
+                if (tracksPager != null) {
+                    for (Track track : tracksPager.tracks.items) {
+                        if (SpotifyUtils.isSameTrack(track, songInfo)) {
+                            databaseAdapter.updateSpotifySongId(cursor.getInt(cursor.getColumnIndexOrThrow(_ID)), track.id);
+                            presenter.checkIfSongSavedInSpotify(track.id, new SongCheckedSubscriber());
+                            return;
+                        }
+                    }
+                }
+                songChecked.setVisibility(View.GONE);
+            }
+        }
+
+        private class SongCheckedSubscriber extends SpotifyCallback<boolean[]> {
+            @Override
+            public void success(boolean[] booleans, Response response) {
+                if (booleans.length > 0 && booleans[0]) {
+                    songChecked.setVisibility(View.VISIBLE);
+                } else {
+                    songChecked.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void failure(SpotifyError spotifyError) {
+                spotifyError.printStackTrace();
+                songChecked.setVisibility(View.GONE);
+            }
         }
     }
 }

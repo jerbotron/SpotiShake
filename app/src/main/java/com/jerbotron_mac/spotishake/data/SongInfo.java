@@ -67,6 +67,12 @@ public class SongInfo implements BaseColumns {
         }
     }
 
+    public SongInfo(String title, String artist, String album) {
+        this.title = title;
+        this.artist = artist;
+        this.album = album;
+    }
+
     private void extractAlbumData(GnAlbum album) {
         this.album = album.title().display();
 

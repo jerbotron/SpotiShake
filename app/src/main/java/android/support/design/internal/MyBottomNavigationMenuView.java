@@ -92,7 +92,7 @@ public class MyBottomNavigationMenuView extends ViewGroup implements MenuView {
         mOnClickListener = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                final BottomNavigationItemView itemView = (BottomNavigationItemView) v;
+                final MyBottomNavigationItemView itemView = (MyBottomNavigationItemView) v;
                 MenuItem item = itemView.getItemData();
                 if (!mMenu.performItemAction(item, mPresenter, 0)) {
                     item.setChecked(true);

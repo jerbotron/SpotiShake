@@ -11,7 +11,8 @@
 
     <application
         android:name=".application.SpotiShakeApplication"
-        android:icon="@drawable/spotishake_logo"
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false"
         android:label="@string/app_name">
         <uses-library
             android:name="com.google.android.maps"
@@ -24,7 +25,6 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -33,9 +33,6 @@
             android:label="@string/title_activity_settings"
             android:theme="@style/AppTheme.Settings">
         </activity>
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="36a29ddb8e97d7b02a9856e96280f52ea81abafa" />
     </application>
 
 </manifest>

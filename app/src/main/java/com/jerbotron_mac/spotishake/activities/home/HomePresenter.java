@@ -210,6 +210,10 @@ public class HomePresenter {
         }
     }
 
+    public void searchTrackInSpotify(SongInfo songInfo, SpotifyCallback<TracksPager> callback) {
+        spotifyServiceWrapper.searchTrack(songInfo, callback);
+    }
+
     public void checkIfSongSavedInSpotify(String trackId, SpotifyCallback<boolean[]> callback) {
         spotifyServiceWrapper.containsTrack(trackId, callback);
     }
@@ -278,6 +282,7 @@ public class HomePresenter {
                         if (sharedUserPrefs.getAutoSavePref()) {
                             spotifyServiceWrapper.saveTrackIfApplicable(track.id);
                         }
+                        historyFragment.saveSong(songInfo);
                         return;
                     }
                 }

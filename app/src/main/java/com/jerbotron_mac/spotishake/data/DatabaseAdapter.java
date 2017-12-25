@@ -47,6 +47,38 @@ public final class DatabaseAdapter {
 		databaseHelper.close();
 	}
 
+    public Cursor getCursor() {
+        Cursor cursor = null;
+        try {
+            String[] columns = {
+                    _ID,
+                    TRACK_TITLE,
+                    TRACK_ALBUM,
+                    TRACK_ARTIST,
+                    TRACK_GENRE,
+                    COVER_ART_URL,
+                    SPOTIFY_ID,
+                    CARD_COLOR,
+                    TIMESTAMP_MS
+            };
+
+            String orderBy = TIMESTAMP_MS + " DESC";
+
+            cursor = db.query(
+                    TB_SONG_HISTORY,
+                    columns,
+                    null,
+                    null,
+                    null,
+                    null,
+                    orderBy);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            appUtils.showToast("Failed to retrieve cursor: " + e.getMessage(), Toast.LENGTH_SHORT);
+        }
+        return cursor;
+    }
+
     public void insertChanges(SongInfo songInfo) {
 
         if (doesRowExist(songInfo)) {
@@ -85,37 +117,19 @@ public final class DatabaseAdapter {
 		}
 	}
 
-	public Cursor getCursor() {
-		Cursor cursor = null;
-		try {
-            String[] columns = {
-                    _ID,
-                    TRACK_TITLE,
-                    TRACK_ALBUM,
-                    TRACK_ARTIST,
-                    TRACK_GENRE,
-                    COVER_ART_URL,
-                    SPOTIFY_ID,
-                    CARD_COLOR,
-                    TIMESTAMP_MS
-            };
+	public void updateSpotifySongId(int _id, String spotifySongId) {
+	    ContentValues contentValues = new ContentValues();
+	    contentValues.put(SPOTIFY_ID, spotifySongId);
 
-            String orderBy = TIMESTAMP_MS + " DESC";
+	    String whereClause = _ID + " = ?";
+	    String[] whereArgs = new String[] {String.valueOf(_id)};
 
-			cursor = db.query(
-			        TB_SONG_HISTORY,
-                    columns,
-                    null,
-                    null,
-                    null,
-                    null,
-                    orderBy);
-		} catch (SQLException e) {
-			e.printStackTrace();
-            appUtils.showToast("Failed to retrieve cursor: " + e.getMessage(), Toast.LENGTH_SHORT);
-		}
-		return cursor;
-	}
+	    try {
+            db.update(TB_SONG_HISTORY, contentValues, whereClause, whereArgs);
+        } catch (SQLException e) {
+	        e.printStackTrace();
+        }
+    }
 
 	private boolean doesRowExist(SongInfo songInfo) {
         Cursor cursor;
@@ -128,7 +142,6 @@ public final class DatabaseAdapter {
                     TRACK_ARTIST,
                     TRACK_GENRE,
                     COVER_ART_URL,
-                    SPOTIFY_ID,
                     CARD_COLOR
             };
 
@@ -136,16 +149,14 @@ public final class DatabaseAdapter {
                     TRACK_ALBUM + " = ? AND " +
                     TRACK_ARTIST + " = ? AND " +
                     TRACK_GENRE + " = ? AND " +
-                    COVER_ART_URL + " = ? AND " +
-                    SPOTIFY_ID + " = ?";
+                    COVER_ART_URL + " = ?";
 
             String[] whereArgs = new String[] {
                     songInfo.getTitle(),
                     songInfo.getAlbum(),
                     songInfo.getArtist(),
                     songInfo.getGenre(),
-                    songInfo.getCoverArtUrl(),
-                    songInfo.getSpotifyId()
+                    songInfo.getCoverArtUrl()
             };
 
             String orderBy = TIMESTAMP_MS + " ASC";
