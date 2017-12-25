@@ -35,7 +35,8 @@ public class LoginCallback extends SpotifyCallback<UserPrivate> {
     public void failure(SpotifyError spotifyError) {
         spotifyError.printStackTrace();
         ErrorDetails errorDetails = spotifyError.getErrorDetails();
-        if (errorDetails.status == ACCESS_EXPIRATION_STATUS_CODE &&
+        if (errorDetails != null &&
+                errorDetails.status == ACCESS_EXPIRATION_STATUS_CODE &&
                 errorDetails.message.equals(ACCESS_EXPIRATION_MSG)) {
             openLoginWindow();
         }

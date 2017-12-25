@@ -30,6 +30,8 @@
 
     <string name="pref_auto_save_songs_summary">Auto save identified songs to your Spotify account</string>
 
+    <!-- Dialog Messages-->
     <string name="delete_history_confirmation">Are you sure you want to delete history?</string>
+    <string name="check_network_connection">Network Error: check your network connection</string>
 
 </resources>

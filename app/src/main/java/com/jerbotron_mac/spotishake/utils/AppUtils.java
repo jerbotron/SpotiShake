@@ -5,8 +5,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
+
+import com.jerbotron_mac.spotishake.R;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,5 +61,22 @@ public class AppUtils {
 
     public static boolean isStringEmpty(String s) {
         return s == null || s.isEmpty() || s.equals("");
+    }
+
+    public static void showCheckNetworkConnectionDialog(Context context) {
+        final AlertDialog alertDialog = new AlertDialog.Builder(context).create();
+        View view = alertDialog.getLayoutInflater().inflate(R.layout.dialog_check_network, null);
+
+        Button delete = (Button) view.findViewById(R.id.confirm_ok);
+
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+
+        alertDialog.setView(view);
+        alertDialog.show();
     }
 }

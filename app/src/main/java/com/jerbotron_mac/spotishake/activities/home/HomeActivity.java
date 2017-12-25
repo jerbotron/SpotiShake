@@ -1,7 +1,10 @@
 package com.jerbotron_mac.spotishake.activities.home;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -85,6 +88,15 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    private boolean isNetworkConnected() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager != null) {
+            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+            return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        }
+        return false;
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -128,6 +140,10 @@ public class HomeActivity extends AppCompatActivity {
         presenter = new HomePresenter(gnUser, displayer, homeComponent);
         displayer.setPresenter(presenter);
         presenter.start();
+
+        if (!isNetworkConnected()) {
+            AppUtils.showCheckNetworkConnectionDialog(this);
+        }
     }
 
     private void initGnSDK() {
