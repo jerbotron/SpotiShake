@@ -2,6 +2,7 @@ package com.jerbotron_mac.spotishake.activities.home.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -23,15 +24,19 @@ import com.jerbotron_mac.spotishake.activities.home.adapters.HistoryListAdapter;
 import com.jerbotron_mac.spotishake.activities.home.custom.RecyclerItemTouchHelper;
 import com.jerbotron_mac.spotishake.data.DatabaseAdapter;
 import com.jerbotron_mac.spotishake.data.SongInfo;
+import com.jerbotron_mac.spotishake.utils.SharedUserPrefs;
 
 public class HistoryFragment extends Fragment implements RecyclerItemTouchHelper.RecyclerItemTouchHelperListener, SwipeRefreshLayout.OnRefreshListener{
 
-    private Context context;
-    private HomePresenter presenter;
     private DatabaseAdapter databaseAdapter;
+
+    private Context context;
+    private SharedUserPrefs sharedUserPrefs;
+    private HomePresenter presenter;
     private HistoryListAdapter historyListAdapter;
     private ItemTouchHelper.SimpleCallback itemTouchHelperCallback;
 
+    private RecyclerView recyclerView;
     private RelativeLayout fragmentLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
     private TextView noHistoryText;
@@ -54,7 +59,7 @@ public class HistoryFragment extends Fragment implements RecyclerItemTouchHelper
 
         noHistoryText = (TextView) view.findViewById(R.id.no_history);
 
-        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.song_history_recycler_view);
+        recyclerView = (RecyclerView) view.findViewById(R.id.song_history_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         if (historyListAdapter != null) {
             historyListAdapter.refreshCursor();
@@ -90,25 +95,32 @@ public class HistoryFragment extends Fragment implements RecyclerItemTouchHelper
     public void onAttach(final Context context) {
         super.onAttach(context);
         this.context = context;
-
-        if (historyListAdapter == null) {
-            historyListAdapter = new HistoryListAdapter(context, presenter, databaseAdapter);
+        if (sharedUserPrefs != null) {
+            sharedUserPrefs.setHistoryFragmentId(getTag());
         }
+        ((HomeActivity) context).getHomeComponent().inject(this);
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
-
-    public void init(HomePresenter presenter, DatabaseAdapter databaseAdapter) {
+    public void init(@NonNull HomePresenter presenter,
+                     @NonNull SharedUserPrefs sharedUserPrefs,
+                     @NonNull DatabaseAdapter databaseAdapter) {
         this.presenter = presenter;
+        this.sharedUserPrefs = sharedUserPrefs;
         this.databaseAdapter = databaseAdapter;
+        initHistoryListAdapter();
     }
 
     public void refreshView() {
-        historyListAdapter.refreshCursor();
-        historyListAdapter.notifyDataSetChanged();
+        if (historyListAdapter != null) {
+            historyListAdapter.refreshCursor();
+            historyListAdapter.notifyDataSetChanged();
+        }
+    }
+
+    public void initHistoryListAdapter() {
+        if (historyListAdapter == null) {
+            historyListAdapter = new HistoryListAdapter(this, presenter, databaseAdapter);
+        }
     }
 
     @Override
@@ -121,7 +133,7 @@ public class HistoryFragment extends Fragment implements RecyclerItemTouchHelper
                 noHistoryText.setVisibility(View.GONE);
             }
         } else {
-            historyListAdapter = new HistoryListAdapter(context, presenter, databaseAdapter);
+            historyListAdapter = new HistoryListAdapter(this, presenter, databaseAdapter);
         }
         swipeRefreshLayout.setRefreshing(false);
     }
@@ -161,6 +173,8 @@ public class HistoryFragment extends Fragment implements RecyclerItemTouchHelper
     }
 
     public void saveSong(SongInfo songInfo) {
-        historyListAdapter.saveSongToDb(songInfo);
+        if (historyListAdapter != null) {
+            historyListAdapter.saveSongToDb(songInfo);
+        }
     }
 }

@@ -1,19 +1,13 @@
 package com.jerbotron_mac.spotishake.application;
 
 import android.app.Application;
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.support.v7.app.AlertDialog;
-import android.view.View;
-import android.widget.Button;
 
-import com.jerbotron_mac.spotishake.R;
+import com.jerbotron_mac.spotishake.activities.home.dagger.DaggerHomeComponent;
+import com.jerbotron_mac.spotishake.activities.home.dagger.HomeComponent;
 import com.jerbotron_mac.spotishake.dagger.ApplicationComponent;
 import com.jerbotron_mac.spotishake.dagger.DaggerApplicationComponent;
 import com.jerbotron_mac.spotishake.network.RestAdapterModule;
 import com.jerbotron_mac.spotishake.network.SpotifyAuthService;
-import com.jerbotron_mac.spotishake.utils.AppUtils;
 import com.jerbotron_mac.spotishake.utils.SharedUserPrefs;
 
 import javax.inject.Inject;
@@ -21,6 +15,7 @@ import javax.inject.Inject;
 public class SpotiShakeApplication extends Application {
 
     private ApplicationComponent applicationComponent;
+    private HomeComponent homeComponent;
 
     @Inject SharedUserPrefs sharedUserPrefs;
     @Inject SpotifyAuthService authService;
@@ -45,5 +40,14 @@ public class SpotiShakeApplication extends Application {
                     .build();
         }
         return applicationComponent;
+    }
+
+    public HomeComponent getHomeComponent() {
+        if (homeComponent == null) {
+            return DaggerHomeComponent.builder()
+                    .applicationComponent(getApplicationComponent())
+                    .build();
+        }
+        return homeComponent;
     }
 }

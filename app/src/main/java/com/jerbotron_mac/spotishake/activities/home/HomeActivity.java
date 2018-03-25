@@ -6,10 +6,12 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.gracenote.gnsdk.GnException;
@@ -20,7 +22,6 @@ import com.gracenote.gnsdk.GnStorageSqlite;
 import com.gracenote.gnsdk.GnUser;
 import com.gracenote.gnsdk.GnUserStore;
 import com.jerbotron_mac.spotishake.R;
-import com.jerbotron_mac.spotishake.activities.home.dagger.DaggerHomeComponent;
 import com.jerbotron_mac.spotishake.activities.home.dagger.HomeComponent;
 import com.jerbotron_mac.spotishake.activities.settings.SettingsActivity;
 import com.jerbotron_mac.spotishake.application.SpotiShakeApplication;
@@ -28,20 +29,12 @@ import com.jerbotron_mac.spotishake.gracenote.SystemEvents;
 import com.jerbotron_mac.spotishake.network.SpotifyAuthService;
 import com.jerbotron_mac.spotishake.network.SpotifyServiceWrapper;
 import com.jerbotron_mac.spotishake.network.callbacks.LoginCallback;
-import com.jerbotron_mac.spotishake.network.requests.AuthRequest;
-import com.jerbotron_mac.spotishake.network.responses.AuthResponse;
-import com.jerbotron_mac.spotishake.network.subscribers.AuthTokenSubscriber;
 import com.jerbotron_mac.spotishake.utils.AppUtils;
 import com.jerbotron_mac.spotishake.utils.SharedUserPrefs;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 import javax.inject.Inject;
-
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 
 import static com.jerbotron_mac.spotishake.shared.AppConstants.APP_STRING;
 import static com.jerbotron_mac.spotishake.shared.AppConstants.GNSDK_CLIENT_ID;
@@ -71,9 +64,7 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        homeComponent = DaggerHomeComponent.builder()
-                .applicationComponent(((SpotiShakeApplication) getApplication()).getApplicationComponent())
-                .build();
+        homeComponent = ((SpotiShakeApplication) getApplication()).getHomeComponent();
         homeComponent.inject(this);
 
         if (sharedUserPrefs.isUserLoggedIn()) {
@@ -84,17 +75,21 @@ public class HomeActivity extends AppCompatActivity {
         if (!appUtils.hasMicrophonePermission(this)) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, AUDIO_MICROPHONE_REQUEST_CODE);
         } else {
+
+            if (savedInstanceState != null) {
+                String t = savedInstanceState.getString("test");
+                if (t != null)
+                    Log.d("JWDEBUG", t);
+            }
             startup();
         }
     }
 
-    private boolean isNetworkConnected() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connectivityManager != null) {
-            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-            return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-        }
-        return false;
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+
+        outState.putString("test", "testing");
     }
 
     @Override
@@ -137,13 +132,22 @@ public class HomeActivity extends AppCompatActivity {
     private void startup() {
         initGnSDK();
         HomeDisplayer displayer = new HomeDisplayer(this);
-        presenter = new HomePresenter(gnUser, displayer, homeComponent);
+        presenter = new HomePresenter(gnUser, displayer, homeComponent, getSupportFragmentManager());
         displayer.setPresenter(presenter);
         presenter.start();
 
         if (!isNetworkConnected()) {
             AppUtils.showCheckNetworkConnectionDialog(this);
         }
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager != null) {
+            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+            return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        }
+        return false;
     }
 
     private void initGnSDK() {
@@ -170,7 +174,25 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void launchSettingsActivity() {
-        Intent intent = new Intent(this, SettingsActivity.class);
+        Intent intent = new Intent(HomeActivity.this, SettingsActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         startActivity(intent);
+    }
+
+    public HomeComponent getHomeComponent() {
+        if (homeComponent == null) {
+            return ((SpotiShakeApplication) getApplication()).getHomeComponent();
+        }
+        return homeComponent;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }

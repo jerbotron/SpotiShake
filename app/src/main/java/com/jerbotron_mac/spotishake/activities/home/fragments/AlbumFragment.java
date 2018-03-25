@@ -12,14 +12,16 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.jerbotron_mac.spotishake.R;
-import com.jerbotron_mac.spotishake.activities.home.HomePresenter;
 import com.jerbotron_mac.spotishake.activities.home.HomeDisplayer;
+import com.jerbotron_mac.spotishake.activities.home.HomePresenter;
 import com.jerbotron_mac.spotishake.data.SongInfo;
 import com.jerbotron_mac.spotishake.utils.AppUtils;
+import com.jerbotron_mac.spotishake.utils.SharedUserPrefs;
 import com.squareup.picasso.Picasso;
 
 public class AlbumFragment extends Fragment {
 
+    private SharedUserPrefs sharedUserPrefs;
     private HomeDisplayer displayer;
     private Vibrator vibrator;
 
@@ -60,12 +62,10 @@ public class AlbumFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        if (sharedUserPrefs != null) {
+            sharedUserPrefs.setAlbumFragmentId(getTag());
+        }
         vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
     }
 
     @Override
@@ -74,7 +74,8 @@ public class AlbumFragment extends Fragment {
 
     }
 
-    public void setDisplayer(HomeDisplayer displayer) {
+    public void init(SharedUserPrefs sharedUserPrefs, HomeDisplayer displayer) {
+        this.sharedUserPrefs = sharedUserPrefs;
         this.displayer = displayer;
     }
 

@@ -3,6 +3,7 @@ package com.jerbotron_mac.spotishake.activities.home;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.IntDef;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -37,10 +38,10 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.reactivex.Observable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
-import io.reactivex.Observable;
 import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.models.Track;
@@ -57,6 +58,7 @@ public class HomePresenter {
     @Inject SharedUserPrefs sharedUserPrefs;
 
     private HomeDisplayer displayer;
+    private FragmentManager fragmentManager;
     private AlbumFragment albumFragment;
     private DetectFragment detectFragment;
     private HistoryFragment historyFragment;
@@ -69,9 +71,11 @@ public class HomePresenter {
 
     private @FragmentEnum int currentFragment;
 
-    HomePresenter(GnUser gnUser, HomeDisplayer displayer, HomeComponent homeComponent) {
+    HomePresenter(GnUser gnUser, HomeDisplayer displayer,
+                  HomeComponent homeComponent, FragmentManager fragmentManager) {
         this.gnUser = gnUser;
         this.displayer = displayer;
+        this.fragmentManager = fragmentManager;
         homeComponent.inject(this);
     }
 
@@ -103,11 +107,11 @@ public class HomePresenter {
             audioProcessThread.start();
         }
 
+        databaseAdapter.open();
+
         if (currentFragment == FragmentEnum.HISTORY) {
             historyFragment.refreshView();
         }
-
-        databaseAdapter.open();
     }
 
     void pause() {
@@ -133,12 +137,23 @@ public class HomePresenter {
     }
 
     private void initFragments() {
-        albumFragment = new AlbumFragment();
-        albumFragment.setDisplayer(displayer);
-        detectFragment = new DetectFragment();
-        detectFragment.setPresenter(this);
-        historyFragment = new HistoryFragment();
-        historyFragment.init(this, databaseAdapter);
+        albumFragment = (AlbumFragment) fragmentManager.findFragmentByTag(sharedUserPrefs.getAlbumFragmentId());
+        detectFragment = (DetectFragment) fragmentManager.findFragmentByTag(sharedUserPrefs.getDetectFragmentId());
+        historyFragment = (HistoryFragment) fragmentManager.findFragmentByTag(sharedUserPrefs.getHistoryFragmentId());
+
+        if (albumFragment == null) {
+            albumFragment = new AlbumFragment();
+        }
+        if (detectFragment == null) {
+            detectFragment = new DetectFragment();
+        }
+        if (historyFragment == null) {
+            historyFragment = new HistoryFragment();
+        }
+
+        albumFragment.init(sharedUserPrefs, displayer);
+        detectFragment.init(this, sharedUserPrefs);
+        historyFragment.init(this, sharedUserPrefs, databaseAdapter);
     }
 
     private void initGnLocale() {

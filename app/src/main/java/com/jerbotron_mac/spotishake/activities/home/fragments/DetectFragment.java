@@ -5,7 +5,6 @@ import android.content.Context;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +15,7 @@ import android.view.animation.ScaleAnimation;
 import com.jerbotron_mac.spotishake.R;
 import com.jerbotron_mac.spotishake.activities.home.HomePresenter;
 import com.jerbotron_mac.spotishake.activities.home.custom.ShakeDetector;
+import com.jerbotron_mac.spotishake.utils.SharedUserPrefs;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -36,6 +36,7 @@ public class DetectFragment extends Fragment {
 
     private volatile Activity activity;
 
+    private SharedUserPrefs sharedUserPrefs;
     private HomePresenter presenter;
     private ShakeDetector shakeDetector;
 
@@ -62,6 +63,10 @@ public class DetectFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         initShakeSensor(context);
+        if (sharedUserPrefs != null) {
+            sharedUserPrefs.setDetectFragmentId(getTag());
+        }
+        activity = (Activity) context;
     }
 
     @Override
@@ -74,7 +79,7 @@ public class DetectFragment extends Fragment {
     public void onResume() {
         super.onResume();
         isRunning = true;
-        activity = getActivity();
+//        activity = getActivity();
     }
 
     @Override
@@ -94,8 +99,9 @@ public class DetectFragment extends Fragment {
         shakeDetector.registerShakeListener(new ShakeListener());
     }
 
-    public void setPresenter(HomePresenter presenter) {
+    public void init(HomePresenter presenter, SharedUserPrefs sharedUserPrefs) {
         this.presenter = presenter;
+        this.sharedUserPrefs = sharedUserPrefs;
     }
 
     public void handleSongNotFound() {
@@ -134,7 +140,7 @@ public class DetectFragment extends Fragment {
 
     private class SetDisplayAmplitudeSubscriber implements Consumer<Integer> {
         @Override
-        public void accept(Integer percent) throws Exception {
+        public void accept(Integer percent) {
             float scaleFactor = zeroScaleFactor + maxScaleFactor*((float) percent/100); // zero position plus audio wave amplitude percent
 
 //            Log.d(DetectFragment.class.getName(), "percent = " + percent);

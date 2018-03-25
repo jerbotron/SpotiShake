@@ -12,8 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.jerbotron_mac.spotishake.R;
-import com.jerbotron_mac.spotishake.activities.home.HomeActivity;
-import com.jerbotron_mac.spotishake.activities.home.HomePresenter;
 import com.jerbotron_mac.spotishake.activities.home.custom.ViewPagerAdapter;
 import com.jerbotron_mac.spotishake.activities.home.fragments.AlbumFragment;
 import com.jerbotron_mac.spotishake.activities.home.fragments.DetectFragment;

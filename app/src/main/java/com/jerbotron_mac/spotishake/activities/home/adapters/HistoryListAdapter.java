@@ -1,6 +1,5 @@
 package com.jerbotron_mac.spotishake.activities.home.adapters;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
@@ -15,6 +14,7 @@ import android.widget.TextView;
 
 import com.jerbotron_mac.spotishake.R;
 import com.jerbotron_mac.spotishake.activities.home.HomePresenter;
+import com.jerbotron_mac.spotishake.activities.home.fragments.HistoryFragment;
 import com.jerbotron_mac.spotishake.data.DatabaseAdapter;
 import com.jerbotron_mac.spotishake.data.SongInfo;
 import com.jerbotron_mac.spotishake.network.subscribers.SpotifyUtils;
@@ -40,16 +40,16 @@ import static com.jerbotron_mac.spotishake.data.SongInfo.TRACK_TITLE;
 
 public class HistoryListAdapter extends CursorRecyclerAdapter<HistoryListAdapter.SongViewHolder> {
 
-    private Context context;
+    private HistoryFragment historyFragment;
     private HomePresenter presenter;
     private DatabaseAdapter databaseAdapter;
 
-    public HistoryListAdapter(Context context,
+    public HistoryListAdapter(HistoryFragment historyFragment,
                               HomePresenter presenter,
                               DatabaseAdapter databaseAdapter) {
         super(databaseAdapter.getCursor());
         this.presenter = presenter;
-        this.context = context;
+        this.historyFragment = historyFragment;
         this.databaseAdapter = databaseAdapter;
     }
 
@@ -140,9 +140,9 @@ public class HistoryListAdapter extends CursorRecyclerAdapter<HistoryListAdapter
 
         private void bindCursor(final Cursor cursor) {
             @MaterialColor.MaterialColors int colorId = cursor.getInt(cursor.getColumnIndexOrThrow(CARD_COLOR));
-            cardForeground.setBackgroundColor(context.getResources().getColor(MaterialColor.getValue(colorId)));
+            cardForeground.setBackgroundColor(historyFragment.getResources().getColor(MaterialColor.getValue(colorId)));
             String url = AppUtils.prependHttp(cursor.getString(cursor.getColumnIndexOrThrow(COVER_ART_URL)));
-            Picasso.with(context)
+            Picasso.with(historyFragment.getContext())
                     .load(url)
                     .placeholder(R.drawable.spotify_logo)
                     .into(coverArt);
@@ -160,7 +160,7 @@ public class HistoryListAdapter extends CursorRecyclerAdapter<HistoryListAdapter
 
             spotifySongId = cursor.getString(cursor.getColumnIndexOrThrow(SPOTIFY_ID));
 
-            if (presenter.isUserLoggedIn()) {
+            if (presenter != null && presenter.isUserLoggedIn()) {
                 if (AppUtils.isStringEmpty(spotifySongId)) {
                     final SongInfo songInfo =  new SongInfo(title.getText().toString(),
                                                             artist.getText().toString(),
@@ -198,7 +198,7 @@ public class HistoryListAdapter extends CursorRecyclerAdapter<HistoryListAdapter
         }
 
         private void showSpotifyDeeplinkDialog(final String spotifySongId) {
-            final AlertDialog alertDialog = new AlertDialog.Builder(context).create();
+            final AlertDialog alertDialog = new AlertDialog.Builder(historyFragment.getContext()).create();
             View view = alertDialog.getLayoutInflater().inflate(R.layout.dialog_spotify_deeplink, null);
 
             Button cancel = (Button) view.findViewById(R.id.cancel_action);
@@ -215,6 +215,7 @@ public class HistoryListAdapter extends CursorRecyclerAdapter<HistoryListAdapter
                 @Override
                 public void onClick(View v) {
                     presenter.openSpotifyDeeplink(spotifySongId);
+                    alertDialog.dismiss();
                 }
             });
 

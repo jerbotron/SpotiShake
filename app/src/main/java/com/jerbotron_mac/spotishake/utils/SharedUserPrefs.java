@@ -2,7 +2,6 @@ package com.jerbotron_mac.spotishake.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import com.jerbotron_mac.spotishake.network.responses.AuthResponse;
 
@@ -21,6 +20,11 @@ public class SharedUserPrefs {
     private static final String USER_DISPLAY_NAME  = "user_display_name";
 
     private static final String AUTO_SAVE_PREF = "auto_save_pref";
+
+    // Fragment IDs
+    private static final String ALBUM_FRAGMENT_ID = "album_fragment_id";
+    private static final String DETECT_FRAGMENT_ID = "detect_fragment_id";
+    private static final String HISTORY_FRAGMENT_ID = "history_fragment_id";
 
     private SharedPreferences sharedPrefs;
 
@@ -94,6 +98,30 @@ public class SharedUserPrefs {
 
     public void saveAuthData(AuthResponse authResponse) {
 
+    }
+
+    public void setAlbumFragmentId(String id) {
+        sharedPrefs.edit().putString(ALBUM_FRAGMENT_ID, id).apply();
+    }
+
+    public String getAlbumFragmentId() {
+        return sharedPrefs.getString(ALBUM_FRAGMENT_ID, "");
+    }
+
+    public void setDetectFragmentId(String id) {
+        sharedPrefs.edit().putString(DETECT_FRAGMENT_ID, id).apply();
+    }
+
+    public String getDetectFragmentId() {
+        return sharedPrefs.getString(DETECT_FRAGMENT_ID, "");
+    }
+
+    public void setHistoryFragmentId(String id) {
+        sharedPrefs.edit().putString(HISTORY_FRAGMENT_ID, id).apply();
+    }
+
+    public String getHistoryFragmentId() {
+        return sharedPrefs.getString(HISTORY_FRAGMENT_ID, "");
     }
 
     public void clearUserData() {
